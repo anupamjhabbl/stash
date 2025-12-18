@@ -1,0 +1,109 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "98154121040a4178ff7ada7ecc234227",
+    "entities": [
+      {
+        "tableName": "stash_category",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `categoryName` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "categoryId",
+            "columnName": "categoryId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryName",
+            "columnName": "categoryName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "categoryId"
+          ]
+        }
+      },
+      {
+        "tableName": "stash_item",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `stashCategoryId` INTEGER NOT NULL, `stashItemName` TEXT NOT NULL, `stashItemUrl` TEXT NOT NULL, `stashItemRating` REAL NOT NULL, `stashItemCompleted` TEXT NOT NULL, FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "stashItemId",
+            "columnName": "stashItemId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stashCategoryId",
+            "columnName": "stashCategoryId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stashItemName",
+            "columnName": "stashItemName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stashItemUrl",
+            "columnName": "stashItemUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stashItemRating",
+            "columnName": "stashItemRating",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stashItemCompleted",
+            "columnName": "stashItemCompleted",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "stashItemId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_stash_item_stashCategoryId",
+            "unique": false,
+            "columnNames": [
+              "stashCategoryId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stash_item_stashCategoryId` ON `${TABLE_NAME}` (`stashCategoryId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "stash_category",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "stashCategoryId"
+            ],
+            "referencedColumns": [
+              "categoryId"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '98154121040a4178ff7ada7ecc234227')"
+    ]
+  }
+}

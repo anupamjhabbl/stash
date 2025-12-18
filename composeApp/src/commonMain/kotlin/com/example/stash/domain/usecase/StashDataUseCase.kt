@@ -1,0 +1,39 @@
+package com.example.stash.domain.usecase
+
+import com.example.stash.domain.model.dto.StashCategoryWithItem
+import com.example.stash.domain.repository.StashDataRepository
+import kotlinx.coroutines.flow.Flow
+
+class StashDataUseCase constructor(
+    private val stashDataRepository: StashDataRepository
+) {
+    fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>> {
+        return stashDataRepository.getCategoryDataWithItems()
+    }
+
+    suspend fun addStashCategory(categoryName: String) {
+        stashDataRepository.addStashCategory(categoryName)
+    }
+
+    fun getCategoryDataWithItemsForId(stashCategoryId: Long): Flow<StashCategoryWithItem>{
+        return stashDataRepository.getCategoryDataWithItemsForId(stashCategoryId)
+    }
+
+    suspend fun addStashItem(
+        stashItemId: Long?,
+        stashCategoryId: Long,
+        stashItemName: String,
+        stashItemUrl: String,
+        stashItemRating: Float,
+        itemCompletedStatus: String
+    ) {
+        stashDataRepository.addStashItem(
+            stashItemId,
+            stashCategoryId,
+            stashItemName,
+            stashItemUrl,
+            stashItemRating,
+            itemCompletedStatus
+        )
+    }
+}
