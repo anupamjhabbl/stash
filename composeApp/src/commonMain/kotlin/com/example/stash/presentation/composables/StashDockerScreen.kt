@@ -9,15 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,15 +50,24 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.stash.domain.model.dto.StashItem
 import com.example.stash.domain.model.entity.StashItemCategoryStatus
-import com.example.stash.koinViewModel
 import com.example.stash.presentation.viewmodels.StashDockerViewModel
+import com.example.stash.presentation.viewmodels.koinViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import stash.composeapp.generated.resources.Res
+import stash.composeapp.generated.resources.add
+import stash.composeapp.generated.resources.add_new_item
 import stash.composeapp.generated.resources.arrow_down
 import stash.composeapp.generated.resources.bg_gradient
 import stash.composeapp.generated.resources.ic_add
 import stash.composeapp.generated.resources.ic_logo
-import kotlin.math.round
+import stash.composeapp.generated.resources.item
+import stash.composeapp.generated.resources.item_name
+import stash.composeapp.generated.resources.stash_docker_empty_page_action
+import stash.composeapp.generated.resources.stash_docker_empty_page_description
+import stash.composeapp.generated.resources.stash_docker_empty_page_title
+import stash.composeapp.generated.resources.your_category
+import kotlin.math.roundToInt
 
 @Composable
 fun StashDockerScreen(
@@ -80,7 +86,6 @@ fun StashDockerScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
             .drawBehind {
                 with(painter) {
                     draw(
@@ -97,7 +102,7 @@ fun StashDockerScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 Text(
-                    text = stashScreenState.stashItemList?.stashCategory?.categoryName ?: "Your Category",
+                    text = stashScreenState.stashItemList?.stashCategory?.categoryName ?: stringResource(Res.string.your_category),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -107,7 +112,7 @@ fun StashDockerScreen(
         floatingActionButton = {
             Icon(
                 painter = painterResource(Res.drawable.ic_add),
-                contentDescription = "Add",
+                contentDescription = stringResource(Res.string.add),
                 modifier = Modifier
                     .size(60.dp)
                     .clickable {
@@ -144,11 +149,11 @@ fun StashDockerScreen(
                     )
                 }
             } else if (stashScreenState.stashItemList?.stashItems.isNullOrEmpty()) {
-                val categoryName = stashScreenState.stashItemList?.stashCategory?.categoryName ?: "Item"
+                val categoryName = stashScreenState.stashItemList?.stashCategory?.categoryName ?: stringResource(Res.string.item)
                 EmptyView(
-                    "No $categoryName yet",
-                    "Start by adding your first $categoryName to keep track of it.",
-                    "Add $categoryName",
+                    title = stringResource(Res.string.stash_docker_empty_page_title, categoryName),
+                    description = stringResource(Res.string.stash_docker_empty_page_description, categoryName),
+                    actionText = stringResource(Res.string.stash_docker_empty_page_action, categoryName),
                     onActionClick = {
                         isDialogVisible = true
                     }
@@ -164,8 +169,8 @@ fun StashDockerScreen(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             StashItemView(
-                                stashItem,
-                                {
+                                stashItem = stashItem,
+                                onItemClick = {
                                     selectedItem = stashItem
                                     isDialogVisible = true
                                 }
@@ -232,16 +237,15 @@ fun StashItemView(
                         .wrapContentHeight(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        Modifier.weight(1f)
-                    ) {
-                        RatingView(stashItem.stashItemRating)
-                    }
+                    RatingView(
+                        modifier = Modifier.weight(1f),
+                        stashItemRating = stashItem.stashItemRating
+                    )
 
                     DropDownView(
-                        stashItem,
-                        stashItem.stashItemCompleted,
-                        onCompleteStatusUpdate
+                        stashItem = stashItem,
+                        stashItemCompleted = stashItem.stashItemCompleted,
+                        updateCompletedStatus = onCompleteStatusUpdate
                     )
                 }
             }
@@ -250,8 +254,12 @@ fun StashItemView(
 }
 
 @Composable
-fun RatingView(stashItemRating: Float) {
+fun RatingView(
+    modifier: Modifier,
+    stashItemRating: Float
+) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -346,7 +354,7 @@ fun ItemAdderDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Add a new Item",
+                    text = stringResource(Res.string.add_new_item),
                     modifier = Modifier.wrapContentSize(Alignment.Center),
                     textAlign = TextAlign.Center,
                 )
@@ -357,7 +365,7 @@ fun ItemAdderDialog(
                     value = itemName,
                     onValueChange = { itemName = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Item Name") },
+                    label = { Text(stringResource(Res.string.item_name)) },
                     shape = RoundedCornerShape(8.dp),
                     maxLines = 2
                 )
@@ -368,11 +376,14 @@ fun ItemAdderDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column {
-                        Text(text = "Rating: ${round(ratingValue * 100) / 10}")
+                        Text(text = "Rating: $ratingValue")
 
                         Slider(
                             value = ratingValue,
-                            onValueChange = { ratingValue = it }
+                            onValueChange = { raw ->
+                                ratingValue = (raw * 10).roundToInt() / 10f
+                            },
+                            valueRange = 0f..10f
                         )
                     }
                 }
@@ -381,7 +392,7 @@ fun ItemAdderDialog(
 
                 Button(
                     onClick = {
-                        onItemAdd(itemId, itemName, round(ratingValue * 100) / 10 )
+                        onItemAdd(itemId, itemName, ratingValue)
                     },
                     modifier = Modifier.width(80.dp).height(40.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -390,7 +401,7 @@ fun ItemAdderDialog(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text(text = "Add")
+                    Text(text = stringResource(Res.string.add))
                 }
             }
         }

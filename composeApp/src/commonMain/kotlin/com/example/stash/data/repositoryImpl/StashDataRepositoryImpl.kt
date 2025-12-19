@@ -1,8 +1,8 @@
 package com.example.stash.data.repositoryImpl
 
 import com.example.stash.data.dao.StashDao
+import com.example.stash.domain.model.dto.EntityToDtoMapper.mapToDto
 import com.example.stash.domain.model.dto.StashCategoryWithItem
-import com.example.stash.domain.model.dto.StashItem
 import com.example.stash.domain.model.entity.StashCategory
 import com.example.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,18 +14,7 @@ class StashDataRepositoryImpl(
     override fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>> {
         return stashDao.getCategoriesWithItems().map { stashCategoryList ->
             stashCategoryList.map { stashCategory ->
-                StashCategoryWithItem(
-                    stashCategory = stashCategory.category,
-                    stashItems = stashCategory.items.map {
-                        StashItem(
-                            it.stashItemId,
-                            it.stashItemName,
-                            it.stashItemUrl,
-                            it.stashItemRating,
-                            it.stashItemCompleted
-                        )
-                    }
-                )
+                stashCategory.mapToDto()
             }
         }
     }
@@ -37,12 +26,7 @@ class StashDataRepositoryImpl(
     override fun getCategoryDataWithItemsForId(stashCategoryId: Long): Flow<StashCategoryWithItem> {
         val stashCategoryWithItem = stashDao.getCategoryWithItems(stashCategoryId)
         return stashCategoryWithItem.map { stashCategory ->
-            StashCategoryWithItem(
-                stashCategory = stashCategory.category,
-                stashItems = stashCategory.items.map {
-                    StashItem(it.stashItemId, it.stashItemName, it.stashItemUrl, it.stashItemRating, it.stashItemCompleted)
-                }
-            )
+            stashCategory.mapToDto()
         }
     }
 

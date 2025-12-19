@@ -4,7 +4,7 @@ import com.example.stash.domain.model.dto.StashCategoryWithItem
 import com.example.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 
-class StashDataUseCase constructor(
+class StashDataUseCase(
     private val stashDataRepository: StashDataRepository
 ) {
     fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>> {

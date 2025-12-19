@@ -9,7 +9,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 fun getDatabaseBuilder(): RoomDatabase.Builder<StashDatabase> {
-    val dbFilePath = documentDirectory() + "/my_room.db"
+    val dbFilePath = documentDirectory() + "/stash.db"
     return Room.databaseBuilder<StashDatabase>(
         name = dbFilePath,
     ).setDriver(BundledSQLiteDriver())

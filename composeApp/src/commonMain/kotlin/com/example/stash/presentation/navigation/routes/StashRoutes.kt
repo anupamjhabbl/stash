@@ -4,10 +4,10 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface StashRoute: NavKey {
+sealed interface StashRoutes: NavKey {
     @Serializable
-    data object Main : StashRoute
+    data object HomeScreen : StashRoutes
 
     @Serializable
-    data class Docker(val stashCategoryId: Long) : StashRoute
+    data class DockerScreen(val stashCategoryId: Long) : StashRoutes
 }

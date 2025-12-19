@@ -9,15 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,31 +45,38 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.stash.domain.model.dto.StashCategoryWithItem
-import com.example.stash.koinViewModel
-import com.example.stash.presentation.viewmodels.MainStashScreenViewModel
+import com.example.stash.presentation.viewmodels.HomeStashScreenViewModel
+import com.example.stash.presentation.viewmodels.koinViewModel
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.stringResource
 import stash.composeapp.generated.resources.Res
-import stash.composeapp.generated.resources.bg_gradient
-import stash.composeapp.generated.resources.ic_add
-import stash.composeapp.generated.resources.ic_logo
+import stash.composeapp.generated.resources.add
+import stash.composeapp.generated.resources.app_name
 import stash.composeapp.generated.resources.arrow_down
 import stash.composeapp.generated.resources.arrow_up
+import stash.composeapp.generated.resources.bg_gradient
+import stash.composeapp.generated.resources.category_adder_dialog_title
+import stash.composeapp.generated.resources.category_name
+import stash.composeapp.generated.resources.home_empty_page_action
+import stash.composeapp.generated.resources.home_empty_page_description
+import stash.composeapp.generated.resources.home_empty_page_title
+import stash.composeapp.generated.resources.ic_add
+import stash.composeapp.generated.resources.ic_logo
 
 @Composable
-fun MainStashScreen(
+fun HomeStashScreen(
     onItemClick: (Long) -> Unit
 ) {
-    val mainStashViewModel = koinViewModel<MainStashScreenViewModel>()
-    val stashScreenState by mainStashViewModel.stashScreenState.collectAsStateWithLifecycle()
+    val viewModel = koinViewModel<HomeStashScreenViewModel>()
+    val stashScreenState by viewModel.stashScreenState.collectAsStateWithLifecycle()
     val painter = painterResource(Res.drawable.bg_gradient)
     var isDialogVisible by remember {
         mutableStateOf(false)
     }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.systemBars)
             .drawBehind {
                 with(painter) {
                     draw(
@@ -95,7 +99,7 @@ fun MainStashScreen(
                 Spacer(Modifier.width(16.dp))
 
                 Text(
-                    text = "Stash",
+                    text = stringResource(Res.string.app_name),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -120,7 +124,7 @@ fun MainStashScreen(
             if (isDialogVisible) {
                 CategoryAdderDialog(
                     onCategoryAdd = { categoryName ->
-                        mainStashViewModel.addCategoryItem(categoryName)
+                        viewModel.addCategoryItem(categoryName)
                         isDialogVisible = false
                     }
                 ) {
@@ -139,9 +143,9 @@ fun MainStashScreen(
                 }
             } else if (stashScreenState.stashCategoryList.isEmpty()) {
                 EmptyView(
-                    "No stash category yet",
-                    "Start by adding your first stash category to keep track of it.",
-                    "Add Category",
+                    title = stringResource(Res.string.home_empty_page_title),
+                    description = stringResource(Res.string.home_empty_page_description),
+                    actionText = stringResource(Res.string.home_empty_page_action),
                     onActionClick = {
                         isDialogVisible = true
                     }
@@ -178,6 +182,7 @@ fun StashCategoryItem(
     } else {
         painterResource(Res.drawable.arrow_down)
     }
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -228,25 +233,25 @@ fun StashCategoryItem(
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     stashCategory.stashItems.take(4).forEach { item ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.ic_logo),
-                            modifier = Modifier
-                                .size(40.dp),
-                            contentDescription = "Item image"
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.ic_logo),
+                                modifier = Modifier
+                                    .size(40.dp),
+                                contentDescription = "Item image"
+                            )
 
-                        Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(4.dp))
 
-                        Text(
-                            text = item.stashItemName,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                            Text(
+                                text = item.stashItemName,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }
@@ -261,7 +266,9 @@ private fun CategoryAdderDialog(
 ) {
     var textValue by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = { onDismissRequest() }) {
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -274,7 +281,7 @@ private fun CategoryAdderDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Add a new Category",
+                    text = stringResource(Res.string.category_adder_dialog_title) ,
                     modifier = Modifier.wrapContentSize(Alignment.Center),
                     textAlign = TextAlign.Center,
                 )
@@ -285,7 +292,7 @@ private fun CategoryAdderDialog(
                     value = textValue,
                     onValueChange = { textValue = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Category Name") },
+                    label = { Text(stringResource(Res.string.category_name)) },
                     shape = RoundedCornerShape(8.dp),
                     maxLines = 1
                 )
@@ -303,15 +310,9 @@ private fun CategoryAdderDialog(
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text(text = "Add")
+                    Text(text = stringResource(Res.string.add))
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun MainStashScreenPreview() {
-    MainStashScreen {}
 }

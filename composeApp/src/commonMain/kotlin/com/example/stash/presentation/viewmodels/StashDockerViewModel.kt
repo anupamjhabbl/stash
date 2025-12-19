@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class StashDockerViewModel constructor(
+class StashDockerViewModel(
     private val stashDataUseCase: StashDataUseCase
 ): ViewModel() {
     private var stashCategoryId: Long? = null
@@ -39,23 +39,24 @@ class StashDockerViewModel constructor(
     }
 
     fun addStashItem(stashItemId: Long?, stashItemName: String, stashItemUrl: String, stashItemRating: Float, stashItemCompletedStatus: String) {
-        if (stashCategoryId == null) return
-        viewModelScope.launch {
-            _stashScreenState.update {
-                it.copy(isLoading = true)
-            }
-            try {
-                stashDataUseCase.addStashItem(
-                    stashItemId,
-                    stashCategoryId!!,
-                    stashItemName,
-                    stashItemUrl,
-                    stashItemRating,
-                    stashItemCompletedStatus
-                )
-            } finally {
+        stashCategoryId?.let { stashCategoryId ->
+            viewModelScope.launch {
                 _stashScreenState.update {
-                    it.copy(isLoading = false)
+                    it.copy(isLoading = true)
+                }
+                try {
+                    stashDataUseCase.addStashItem(
+                        stashItemId,
+                        stashCategoryId,
+                        stashItemName,
+                        stashItemUrl,
+                        stashItemRating,
+                        stashItemCompletedStatus
+                    )
+                } finally {
+                    _stashScreenState.update {
+                        it.copy(isLoading = false)
+                    }
                 }
             }
         }

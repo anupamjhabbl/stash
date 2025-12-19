@@ -12,20 +12,22 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MainStashScreenViewModel constructor(
+class HomeStashScreenViewModel(
     private val stashDataUseCase: StashDataUseCase
 ): ViewModel() {
-    private val _stashScreenState: MutableStateFlow<MainStashScreenState> = MutableStateFlow(MainStashScreenState())
-    val stashScreenState: StateFlow<MainStashScreenState> = _stashScreenState.asStateFlow()
+    private val _stashScreenState: MutableStateFlow<HomeStashScreenState> = MutableStateFlow(HomeStashScreenState())
+    val stashScreenState: StateFlow<HomeStashScreenState> = _stashScreenState.asStateFlow()
 
     init {
         viewModelScope.launch {
             stashDataUseCase.getCategoryDataWithItems().onStart {
-                    _stashScreenState.update { it.copy(isLoading = true) }
+                    _stashScreenState.update {
+                        it.copy(isLoading = true)
+                    }
                 }
                 .catch {
                     _stashScreenState.update {
-                        it.copy(isLoading = false, stashCategoryList = emptyList())
+                        it.copy(isLoading = false)
                     }
                 }
                 .collect { list ->
@@ -51,7 +53,7 @@ class MainStashScreenViewModel constructor(
     }
 }
 
-data class MainStashScreenState(
+data class HomeStashScreenState(
     val isLoading: Boolean = false,
     val stashCategoryList: List<StashCategoryWithItem> = emptyList()
 )
