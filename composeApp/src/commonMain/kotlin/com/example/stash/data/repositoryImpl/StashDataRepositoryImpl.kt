@@ -4,6 +4,9 @@ import com.example.stash.data.dao.StashDao
 import com.example.stash.domain.model.dto.EntityToDtoMapper.mapToDto
 import com.example.stash.domain.model.dto.StashCategoryWithItem
 import com.example.stash.domain.model.entity.StashCategory
+import com.example.stash.domain.model.entity.StashCategorySync
+import com.example.stash.domain.model.entity.StashItemSync
+import com.example.stash.domain.model.entity.SyncStatus
 import com.example.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,7 +23,13 @@ class StashDataRepositoryImpl(
     }
 
     override suspend fun addStashCategory(categoryName: String) {
-        stashDao.insertStashCategory(StashCategory(categoryName = categoryName))
+        val categoryId = stashDao.insertStashCategory(StashCategory(categoryName = categoryName))
+        stashDao.insertStashCategorySync(
+            StashCategorySync(
+                stashCategoryId = categoryId,
+                syncStatus = SyncStatus.PENDING.status
+            )
+        )
     }
 
     override fun getCategoryDataWithItemsForId(stashCategoryId: Long): Flow<StashCategoryWithItem> {
@@ -38,7 +47,7 @@ class StashDataRepositoryImpl(
         stashItemRating: Float,
         itemCompletedStatus: String
     ) {
-        if (stashItemId != null) {
+        val itemId = if (stashItemId != null) {
             stashDao.insertStashItem(
                 com.example.stash.domain.model.entity.StashItem(
                     stashItemId = stashItemId,
@@ -60,5 +69,11 @@ class StashDataRepositoryImpl(
                 )
             )
         }
+        stashDao.insertStashItemSync(
+            StashItemSync(
+                stashItemId = itemId,
+                syncStatus = SyncStatus.PENDING.status
+            )
+        )
     }
 }

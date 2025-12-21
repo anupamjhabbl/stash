@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -38,6 +39,8 @@ kotlin {
             implementation(libs.androidx.room.sqlite.wrapper)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.workmanager)
+            implementation(libs.workmanager.koin)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -58,6 +61,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.navigation.compose)
+            implementation(libs.ktorfit)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
