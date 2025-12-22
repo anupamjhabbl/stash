@@ -121,7 +121,8 @@ class StashRemoteRepositoryImpl(
 
     override suspend fun updateCategoriesToRemote() {
         val categoryWithSync = stashDao.getCategoriesWithSyncData()
-        val filteredCategoryWithSync = categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }.map {
+        val filteredCategoryWithSync = categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
+        val filteredCategoryWithSyncForUpdate = filteredCategoryWithSync.map {
             StashCategory(
                 it.stashCategory.mapToDto(),
                 it.syncData.lastUpdated
@@ -129,14 +130,25 @@ class StashRemoteRepositoryImpl(
         }
         stashClient.updateCategories(
             StashCategoryBatch(
-                stashCategoryList = filteredCategoryWithSync
+                stashCategoryList = filteredCategoryWithSyncForUpdate
             )
+        )
+        stashDao.insertStashCategorySyncList(
+            filteredCategoryWithSync.map {
+                StashCategorySync(
+                    id = it.syncData.id,
+                    stashCategoryId = it.stashCategory.categoryId,
+                    syncStatus = SyncStatus.COMPLETED.status,
+                    lastUpdated = it.syncData.lastUpdated
+                )
+            }
         )
     }
 
     override suspend fun updateItemsToRemote() {
         val categoryWithSync = stashDao.getItemsWithSyncData()
-        val filteredCategoryWithSync = categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }.map {
+        val filteredCategoryWithSync =  categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
+        val filteredCategoryWithSyncForUpdate = filteredCategoryWithSync.map {
             StashItem(
                 it.stashItem.mapToDto(),
                 it.syncData.lastUpdated
@@ -144,8 +156,18 @@ class StashRemoteRepositoryImpl(
         }
         stashClient.updateItems(
             StashItemBatch(
-                stashItemList = filteredCategoryWithSync
+                stashItemList = filteredCategoryWithSyncForUpdate
             )
+        )
+        stashDao.insertStashItemSyncList(
+            filteredCategoryWithSync.map {
+                StashItemSync(
+                    id = it.syncData.id,
+                    stashItemId = it.stashItem.stashItemId,
+                    syncStatus = SyncStatus.COMPLETED.status,
+                    lastUpdated = it.syncData.lastUpdated
+                )
+            }
         )
     }
 }

@@ -57,21 +57,23 @@ import org.jetbrains.compose.resources.stringResource
 import stash.composeapp.generated.resources.Res
 import stash.composeapp.generated.resources.add
 import stash.composeapp.generated.resources.add_new_item
+import stash.composeapp.generated.resources.app_name
 import stash.composeapp.generated.resources.arrow_down
 import stash.composeapp.generated.resources.bg_gradient
 import stash.composeapp.generated.resources.ic_add
+import stash.composeapp.generated.resources.ic_arrow_back
 import stash.composeapp.generated.resources.ic_logo
 import stash.composeapp.generated.resources.item
 import stash.composeapp.generated.resources.item_name
 import stash.composeapp.generated.resources.stash_docker_empty_page_action
 import stash.composeapp.generated.resources.stash_docker_empty_page_description
 import stash.composeapp.generated.resources.stash_docker_empty_page_title
-import stash.composeapp.generated.resources.your_category
 import kotlin.math.roundToInt
 
 @Composable
 fun StashDockerScreen(
-    stashCategoryId: Long
+    stashCategoryId: Long,
+    onGoBack: () -> Unit
 ) {
     val stashDockerViewModel = koinViewModel<StashDockerViewModel>()
     var selectedItem by remember { mutableStateOf<StashItem?>(null) }
@@ -95,18 +97,31 @@ fun StashDockerScreen(
                 }
             },
         topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.TopCenter
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stashScreenState.stashItemList?.stashCategory?.categoryName ?: stringResource(Res.string.your_category),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_back),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable { onGoBack() }
                 )
+
+                Spacer(Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(Res.string.app_name),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         },
         floatingActionButton = {

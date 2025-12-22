@@ -52,7 +52,9 @@ fun NavigationRoot() {
             }
 
             entry<StashRoutes.DockerScreen> {
-                StashDockerScreen(it.stashCategoryId)
+                StashDockerScreen(it.stashCategoryId) {
+                    navBackStack.removeLastOrNull()
+                }
             }
         }
     )
