@@ -15,11 +15,11 @@ import kotlinx.coroutines.launch
 class StashDockerViewModel(
     private val stashDataUseCase: StashDataUseCase
 ): ViewModel() {
-    private var stashCategoryId: Long? = null
+    private var stashCategoryId: String? = null
     private val _stashScreenState: MutableStateFlow<StashDockerScreenState> = MutableStateFlow(StashDockerScreenState())
     val stashScreenState: StateFlow<StashDockerScreenState> = _stashScreenState.asStateFlow()
 
-    fun init(stashCategoryId: Long) {
+    fun init(stashCategoryId: String) {
         this.stashCategoryId = stashCategoryId
         viewModelScope.launch {
             stashDataUseCase.getCategoryDataWithItemsForId(stashCategoryId).onStart {
@@ -38,7 +38,7 @@ class StashDockerViewModel(
         }
     }
 
-    fun addStashItem(stashItemId: Long?, stashItemName: String, stashItemUrl: String, stashItemRating: Float, stashItemCompletedStatus: String) {
+    fun addStashItem(stashItemId: String?, stashItemName: String, stashItemUrl: String, stashItemRating: Float, stashItemCompletedStatus: String) {
         stashCategoryId?.let { stashCategoryId ->
             viewModelScope.launch {
                 _stashScreenState.update {

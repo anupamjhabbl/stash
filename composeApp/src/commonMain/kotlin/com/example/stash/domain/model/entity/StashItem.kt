@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.stash.common.UUIDUtils
 
 @Entity(
     tableName = "stash_item",
@@ -18,9 +19,9 @@ import androidx.room.PrimaryKey
     indices = [Index("stashCategoryId")]
 )
 data class StashItem(
-    @PrimaryKey(autoGenerate = true)
-    val stashItemId: Long = 0,
-    val stashCategoryId: Long = 0,
+    @PrimaryKey
+    val stashItemId: String = UUIDUtils.generateUUID(),
+    val stashCategoryId: String,
     val stashItemName: String = "",
     val stashItemUrl: String = "",
     val stashItemRating: Float = 0f,

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class StashCategory(
-    val categoryId: Long = 0,
+    val categoryId: String,
     val categoryName: String = ""
 )

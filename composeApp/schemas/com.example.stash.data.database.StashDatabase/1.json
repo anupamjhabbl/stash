@@ -2,16 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "17a0ca2fa42e620fb3a014959b2db5c4",
+    "identityHash": "189bf1e92510ebaffcd5c831a5ab6102",
     "entities": [
       {
         "tableName": "stash_category",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `categoryName` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` TEXT NOT NULL, `categoryName` TEXT NOT NULL, PRIMARY KEY(`categoryId`))",
         "fields": [
           {
             "fieldPath": "categoryId",
             "columnName": "categoryId",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -22,7 +22,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "categoryId"
           ]
@@ -30,18 +30,18 @@
       },
       {
         "tableName": "stash_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `stashCategoryId` INTEGER NOT NULL, `stashItemName` TEXT NOT NULL, `stashItemUrl` TEXT NOT NULL, `stashItemRating` REAL NOT NULL, `stashItemCompleted` TEXT NOT NULL, FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemId` TEXT NOT NULL, `stashCategoryId` TEXT NOT NULL, `stashItemName` TEXT NOT NULL, `stashItemUrl` TEXT NOT NULL, `stashItemRating` REAL NOT NULL, `stashItemCompleted` TEXT NOT NULL, PRIMARY KEY(`stashItemId`), FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "stashItemId",
             "columnName": "stashItemId",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "stashCategoryId",
             "columnName": "stashCategoryId",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -70,7 +70,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "stashItemId"
           ]
@@ -102,18 +102,18 @@
       },
       {
         "tableName": "stash_item_sync",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `stashItemId` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL, FOREIGN KEY(`stashItemId`) REFERENCES `stash_item`(`stashItemId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemSyncId` TEXT NOT NULL, `stashItemId` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL, PRIMARY KEY(`stashItemSyncId`), FOREIGN KEY(`stashItemId`) REFERENCES `stash_item`(`stashItemId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
+            "fieldPath": "stashItemSyncId",
+            "columnName": "stashItemSyncId",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "stashItemId",
             "columnName": "stashItemId",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -130,9 +130,9 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "stashItemSyncId"
           ]
         },
         "foreignKeys": [
@@ -151,18 +151,18 @@
       },
       {
         "tableName": "stash_category_sync",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `stashCategoryId` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL, FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashCategorySyncId` TEXT NOT NULL, `stashCategoryId` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL, PRIMARY KEY(`stashCategorySyncId`), FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
+            "fieldPath": "stashCategorySyncId",
+            "columnName": "stashCategorySyncId",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "stashCategoryId",
             "columnName": "stashCategoryId",
-            "affinity": "INTEGER",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -179,9 +179,9 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "stashCategorySyncId"
           ]
         },
         "foreignKeys": [
@@ -201,7 +201,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '17a0ca2fa42e620fb3a014959b2db5c4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '189bf1e92510ebaffcd5c831a5ab6102')"
     ]
   }
 }

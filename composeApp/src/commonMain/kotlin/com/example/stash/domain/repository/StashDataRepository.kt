@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 interface StashDataRepository {
     fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>>
     suspend fun addStashCategory(categoryName: String)
-    fun getCategoryDataWithItemsForId(stashCategoryId: Long): Flow<StashCategoryWithItem>
+    fun getCategoryDataWithItemsForId(stashCategoryId: String): Flow<StashCategoryWithItem>
     suspend fun addStashItem(
-        stashItemId: Long?,
-        stashCategoryId: Long,
+        stashItemId: String?,
+        stashCategoryId: String,
         stashItemName: String,
         stashItemUrl: String,
         stashItemRating: Float,

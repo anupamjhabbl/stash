@@ -3,6 +3,7 @@ package com.example.stash.domain.model.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.example.stash.common.UUIDUtils
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -18,9 +19,9 @@ import kotlin.time.ExperimentalTime
     ],
 )
 data class StashCategorySync @OptIn(ExperimentalTime::class) constructor(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val stashCategoryId: Long,
+    @PrimaryKey
+    val stashCategorySyncId: String = UUIDUtils.generateUUID(),
+    val stashCategoryId: String,
     val syncStatus: String,
     val lastUpdated: Long = Clock.System.now().toEpochMilliseconds()
 )

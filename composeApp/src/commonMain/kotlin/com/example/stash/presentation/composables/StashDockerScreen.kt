@@ -72,7 +72,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun StashDockerScreen(
-    stashCategoryId: Long,
+    stashCategoryId: String,
     onGoBack: () -> Unit
 ) {
     val stashDockerViewModel = koinViewModel<StashDockerViewModel>()
@@ -97,9 +97,8 @@ fun StashDockerScreen(
                 }
             },
         topBar = {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_arrow_back),
@@ -108,8 +107,6 @@ fun StashDockerScreen(
                         .size(32.dp)
                         .clickable { onGoBack() }
                 )
-
-                Spacer(Modifier.width(16.dp))
 
                 Box(
                     modifier = Modifier.fillMaxWidth(),
@@ -347,11 +344,11 @@ fun DropDownView(
 
 @Composable
 fun ItemAdderDialog(
-    onItemAdd: (Long?, String, Float) -> Unit,
+    onItemAdd: (String?, String, Float) -> Unit,
     onDismissRequest: () -> Unit,
     itemName: String = "",
     ratingValue: Float = 0f,
-    itemId: Long? = null,
+    itemId: String? = null,
 ) {
     var itemName by remember { mutableStateOf(itemName) }
     var ratingValue by remember { mutableStateOf(ratingValue) }

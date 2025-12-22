@@ -23,16 +23,17 @@ class StashDataRepositoryImpl(
     }
 
     override suspend fun addStashCategory(categoryName: String) {
-        val categoryId = stashDao.insertStashCategory(StashCategory(categoryName = categoryName))
+        val stashCategory = StashCategory(categoryName = categoryName)
+        stashDao.insertStashCategory(stashCategory)
         stashDao.insertStashCategorySync(
             StashCategorySync(
-                stashCategoryId = categoryId,
+                stashCategoryId = stashCategory.categoryId,
                 syncStatus = SyncStatus.PENDING.status
             )
         )
     }
 
-    override fun getCategoryDataWithItemsForId(stashCategoryId: Long): Flow<StashCategoryWithItem> {
+    override fun getCategoryDataWithItemsForId(stashCategoryId: String): Flow<StashCategoryWithItem> {
         val stashCategoryWithItem = stashDao.getCategoryWithItems(stashCategoryId)
         return stashCategoryWithItem.map { stashCategory ->
             stashCategory.mapToDto()
@@ -40,38 +41,35 @@ class StashDataRepositoryImpl(
     }
 
     override suspend fun addStashItem(
-        stashItemId: Long?,
-        stashCategoryId: Long,
+        stashItemId: String?,
+        stashCategoryId: String,
         stashItemName: String,
         stashItemUrl: String,
         stashItemRating: Float,
         itemCompletedStatus: String
     ) {
-        val itemId = if (stashItemId != null) {
-            stashDao.insertStashItem(
-                com.example.stash.domain.model.entity.StashItem(
-                    stashItemId = stashItemId,
-                    stashCategoryId = stashCategoryId,
-                    stashItemName = stashItemName,
-                    stashItemUrl = stashItemUrl,
-                    stashItemRating = stashItemRating,
-                    stashItemCompleted = itemCompletedStatus
-                )
+        val stashItem = if (stashItemId != null) {
+            com.example.stash.domain.model.entity.StashItem(
+                stashItemId = stashItemId,
+                stashCategoryId = stashCategoryId,
+                stashItemName = stashItemName,
+                stashItemUrl = stashItemUrl,
+                stashItemRating = stashItemRating,
+                stashItemCompleted = itemCompletedStatus
             )
         } else {
-            stashDao.insertStashItem(
-                com.example.stash.domain.model.entity.StashItem(
-                    stashCategoryId = stashCategoryId,
-                    stashItemName = stashItemName,
-                    stashItemUrl = stashItemUrl,
-                    stashItemRating = stashItemRating,
-                    stashItemCompleted = itemCompletedStatus
-                )
+            com.example.stash.domain.model.entity.StashItem(
+                stashCategoryId = stashCategoryId,
+                stashItemName = stashItemName,
+                stashItemUrl = stashItemUrl,
+                stashItemRating = stashItemRating,
+                stashItemCompleted = itemCompletedStatus
             )
         }
+        stashDao.insertStashItem(stashItem)
         stashDao.insertStashItemSync(
             StashItemSync(
-                stashItemId = itemId,
+                stashItemId = stashItem.stashItemId,
                 syncStatus = SyncStatus.PENDING.status
             )
         )

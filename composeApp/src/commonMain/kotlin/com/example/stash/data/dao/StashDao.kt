@@ -17,13 +17,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface StashDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStashCategory(stashCategory: StashCategory): Long
+    suspend fun insertStashCategory(stashCategory: StashCategory)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStashCategoryList(stashCategoryList: List<StashCategory>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStashItem(stashItem: StashItem): Long
+    suspend fun insertStashItem(stashItem: StashItem)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStashItemList(stashItemList: List<StashItem>)
@@ -34,16 +34,16 @@ interface StashDao {
 
     @Transaction
     @Query("SELECT * FROM stash_category WHERE categoryId = :categoryId")
-    fun getCategoryWithItems(categoryId: Long): Flow<CategoryWithItems>
+    fun getCategoryWithItems(categoryId: String): Flow<CategoryWithItems>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStashCategorySync(stashCategorySync: StashCategorySync): Long
+    suspend fun insertStashCategorySync(stashCategorySync: StashCategorySync)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStashCategorySyncList(stashCategorySyncList: List<StashCategorySync>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertStashItemSync(stashItemSync: StashItemSync): Long
+    suspend fun insertStashItemSync(stashItemSync: StashItemSync)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStashItemSyncList(stashItemSyncList: List<StashItemSync>)

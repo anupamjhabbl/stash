@@ -48,7 +48,7 @@ class StashRemoteRepositoryImpl(
                 local.syncData.lastUpdated < remote.lastUpdated -> {
                     categoryListToUpdate += stashCategory
                     categorySyncListToUpdate += StashCategorySync(
-                        id = local.syncData.id,
+                        stashCategorySyncId = local.syncData.stashCategorySyncId,
                         stashCategoryId = stashCategory.categoryId,
                         syncStatus = SyncStatus.COMPLETED.status,
                         lastUpdated = remote.lastUpdated
@@ -102,7 +102,7 @@ class StashRemoteRepositoryImpl(
                 local.syncData.lastUpdated < remote.lastUpdated -> {
                     itemsListToUpdate += stashItem
                     itemsSyncListToUpdate += StashItemSync(
-                        id = local.syncData.id,
+                        stashItemSyncId = local.syncData.stashItemSyncId,
                         stashItemId = stashItem.stashItemId,
                         syncStatus = SyncStatus.COMPLETED.status,
                         lastUpdated = remote.lastUpdated
@@ -136,7 +136,7 @@ class StashRemoteRepositoryImpl(
         stashDao.insertStashCategorySyncList(
             filteredCategoryWithSync.map {
                 StashCategorySync(
-                    id = it.syncData.id,
+                    stashCategorySyncId = it.syncData.stashCategorySyncId,
                     stashCategoryId = it.stashCategory.categoryId,
                     syncStatus = SyncStatus.COMPLETED.status,
                     lastUpdated = it.syncData.lastUpdated
@@ -146,9 +146,9 @@ class StashRemoteRepositoryImpl(
     }
 
     override suspend fun updateItemsToRemote() {
-        val categoryWithSync = stashDao.getItemsWithSyncData()
-        val filteredCategoryWithSync =  categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
-        val filteredCategoryWithSyncForUpdate = filteredCategoryWithSync.map {
+        val itemsWithSync = stashDao.getItemsWithSyncData()
+        val filteredItemsWithSync =  itemsWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
+        val filteredItemsWithSyncForUpdate = filteredItemsWithSync.map {
             StashItem(
                 it.stashItem.mapToDto(),
                 it.syncData.lastUpdated
@@ -156,13 +156,13 @@ class StashRemoteRepositoryImpl(
         }
         stashClient.updateItems(
             StashItemBatch(
-                stashItemList = filteredCategoryWithSyncForUpdate
+                stashItemList = filteredItemsWithSyncForUpdate
             )
         )
         stashDao.insertStashItemSyncList(
-            filteredCategoryWithSync.map {
+            filteredItemsWithSync.map {
                 StashItemSync(
-                    id = it.syncData.id,
+                    stashItemSyncId = it.syncData.stashItemSyncId,
                     stashItemId = it.stashItem.stashItemId,
                     syncStatus = SyncStatus.COMPLETED.status,
                     lastUpdated = it.syncData.lastUpdated

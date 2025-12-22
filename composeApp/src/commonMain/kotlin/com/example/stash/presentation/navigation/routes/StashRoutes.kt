@@ -9,5 +9,5 @@ sealed interface StashRoutes: NavKey {
     data object HomeScreen : StashRoutes
 
     @Serializable
-    data class DockerScreen(val stashCategoryId: Long) : StashRoutes
+    data class DockerScreen(val stashCategoryId: String) : StashRoutes
 }

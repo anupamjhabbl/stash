@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StashItem(
-    val stashItemId: Long,
-    val stashCategoryId: Long,
+    val stashItemId: String,
+    val stashCategoryId: String,
     val stashItemName: String = "",
     val stashItemUrl: String = "",
     val stashItemRating: Float = 0f,

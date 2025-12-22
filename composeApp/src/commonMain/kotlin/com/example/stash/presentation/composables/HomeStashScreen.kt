@@ -65,7 +65,7 @@ import stash.composeapp.generated.resources.ic_logo
 
 @Composable
 fun HomeStashScreen(
-    onItemClick: (Long) -> Unit
+    onItemClick: (String) -> Unit
 ) {
     val viewModel = koinViewModel<HomeStashScreenViewModel>()
     val stashScreenState by viewModel.stashScreenState.collectAsStateWithLifecycle()
@@ -174,7 +174,7 @@ fun HomeStashScreen(
 @Composable
 fun StashCategoryItem(
     stashCategory: StashCategoryWithItem,
-    onItemClick: (Long) -> Unit
+    onItemClick: (String) -> Unit
 ) {
     var itemExpanded by remember { mutableStateOf(false) }
     val painterResource = if (itemExpanded) {
@@ -229,11 +229,13 @@ fun StashCategoryItem(
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                        .fillMaxWidth()
                 ) {
                     stashCategory.stashItems.take(4).forEach { item ->
                         Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
