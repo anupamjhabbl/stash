@@ -15,6 +15,7 @@ object EntityToDtoMapper {
     fun StashItem.mapToDto(): com.example.stash.domain.model.dto.StashItem {
         return com.example.stash.domain.model.dto.StashItem(
             stashItemId = stashItemId,
+            stashCategoryId = stashCategoryId,
             stashItemName = stashItemName,
             stashItemUrl = stashItemUrl,
             stashItemRating = stashItemRating,
