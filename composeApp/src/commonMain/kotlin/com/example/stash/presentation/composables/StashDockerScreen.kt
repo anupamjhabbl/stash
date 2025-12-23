@@ -40,21 +40,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.stash.domain.model.dto.StashItem
 import com.example.stash.domain.model.entity.StashItemCategoryStatus
 import com.example.stash.presentation.viewmodels.StashDockerViewModel
 import com.example.stash.presentation.viewmodels.koinViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import stash.composeapp.generated.resources.Res
 import stash.composeapp.generated.resources.add
 import stash.composeapp.generated.resources.add_new_item
 import stash.composeapp.generated.resources.app_name
@@ -69,6 +71,9 @@ import stash.composeapp.generated.resources.stash_docker_empty_page_action
 import stash.composeapp.generated.resources.stash_docker_empty_page_description
 import stash.composeapp.generated.resources.stash_docker_empty_page_title
 import kotlin.math.roundToInt
+import stash.composeapp.generated.resources.Res
+
+
 
 @Composable
 fun StashDockerScreen(
@@ -210,7 +215,7 @@ fun StashItemView(
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colorScheme.tertiary, shape = MaterialTheme.shapes.medium)
             .background(color = Color.White, shape = MaterialTheme.shapes.medium)
-            .padding(16.dp, 8.dp)
+            .padding(12.dp, 10.dp)
             .clickable {
                 onItemClick(stashItem)
             }
@@ -219,14 +224,19 @@ fun StashItemView(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(Res.drawable.ic_logo),
+            AsyncImage(
+                model = stashItem.stashItemUrl,
                 modifier = Modifier
-                    .size(90.dp),
-                contentDescription = "Item image"
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Fit,
+                contentDescription = "Item image",
+                placeholder = painterResource(Res.drawable.ic_logo),
+                error = painterResource(Res.drawable.ic_logo),
+                fallback = painterResource(Res.drawable.ic_logo)
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(12.dp))
 
             Column (
                 modifier = Modifier

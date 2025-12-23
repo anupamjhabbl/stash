@@ -36,14 +36,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.stash.domain.model.dto.StashCategoryWithItem
 import com.example.stash.presentation.viewmodels.HomeStashScreenViewModel
 import com.example.stash.presentation.viewmodels.koinViewModel
@@ -61,6 +65,7 @@ import stash.composeapp.generated.resources.home_empty_page_action
 import stash.composeapp.generated.resources.home_empty_page_description
 import stash.composeapp.generated.resources.home_empty_page_title
 import stash.composeapp.generated.resources.ic_add
+import stash.composeapp.generated.resources.ic_arrow_back
 import stash.composeapp.generated.resources.ic_logo
 
 @Composable
@@ -231,18 +236,23 @@ fun StashCategoryItem(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    stashCategory.stashItems.take(4).forEach { item ->
+                    stashCategory.stashItems.take(3).forEach { item ->
                         Column(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Image(
-                                painter = painterResource(Res.drawable.ic_logo),
+                            AsyncImage(
+                                model = item.stashItemUrl,
                                 modifier = Modifier
-                                    .size(40.dp),
-                                contentDescription = "Item image"
+                                    .size(70.dp)
+                                    .clip(RoundedCornerShape(6.dp)),
+                                contentScale = ContentScale.Fit,
+                                contentDescription = "Item image",
+                                placeholder = painterResource(Res.drawable.ic_logo),
+                                error = painterResource(Res.drawable.ic_logo),
+                                fallback = painterResource(Res.drawable.ic_logo)
                             )
 
                             Spacer(Modifier.height(4.dp))
