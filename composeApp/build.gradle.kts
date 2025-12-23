@@ -69,6 +69,8 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+            implementation(libs.material3.adaptive)
+            implementation(libs.material3.adaptive.layout)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

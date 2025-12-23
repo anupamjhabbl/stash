@@ -16,6 +16,9 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import com.example.stash.presentation.composables.HomeStashScreen
 import com.example.stash.presentation.composables.StashDockerScreen
 import com.example.stash.presentation.navigation.routes.StashRoutes
+import com.example.stash.presentation.scene.CategoryDockerScene.Companion.homePane
+import com.example.stash.presentation.scene.CategoryDockerScene.Companion.stashDockerPane
+import com.example.stash.presentation.scene.rememberListDetailSceneStrategy
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -34,24 +37,30 @@ fun NavigationRoot() {
         },
          StashRoutes.HomeScreen
     )
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
 
     NavDisplay(
         backStack = navBackStack,
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars),
+        sceneStrategy = listDetailStrategy,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<StashRoutes.HomeScreen> {
+            entry<StashRoutes.HomeScreen>(
+                metadata = homePane()
+            ) {
                 HomeStashScreen { item ->
                     navBackStack.add(StashRoutes.DockerScreen(item))
                 }
             }
 
-            entry<StashRoutes.DockerScreen> {
+            entry<StashRoutes.DockerScreen>(
+                metadata = stashDockerPane()
+            ) {
                 StashDockerScreen(it.stashCategoryId) {
                     navBackStack.removeLastOrNull()
                 }

@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,7 +64,6 @@ import stash.composeapp.generated.resources.home_empty_page_action
 import stash.composeapp.generated.resources.home_empty_page_description
 import stash.composeapp.generated.resources.home_empty_page_title
 import stash.composeapp.generated.resources.ic_add
-import stash.composeapp.generated.resources.ic_arrow_back
 import stash.composeapp.generated.resources.ic_logo
 
 @Composable
@@ -115,6 +113,7 @@ fun HomeStashScreen(
             Icon(
                 painter = painterResource(Res.drawable.ic_add),
                 contentDescription = "Add",
+                tint = Color.Unspecified,
                 modifier = Modifier
                     .size(60.dp)
                     .clickable {

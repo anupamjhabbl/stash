@@ -1,6 +1,5 @@
 package com.example.stash.presentation.composables
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -57,6 +56,7 @@ import com.example.stash.presentation.viewmodels.StashDockerViewModel
 import com.example.stash.presentation.viewmodels.koinViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import stash.composeapp.generated.resources.Res
 import stash.composeapp.generated.resources.add
 import stash.composeapp.generated.resources.add_new_item
 import stash.composeapp.generated.resources.app_name
@@ -65,14 +65,13 @@ import stash.composeapp.generated.resources.bg_gradient
 import stash.composeapp.generated.resources.ic_add
 import stash.composeapp.generated.resources.ic_arrow_back
 import stash.composeapp.generated.resources.ic_logo
+import stash.composeapp.generated.resources.ic_star
 import stash.composeapp.generated.resources.item
 import stash.composeapp.generated.resources.item_name
 import stash.composeapp.generated.resources.stash_docker_empty_page_action
 import stash.composeapp.generated.resources.stash_docker_empty_page_description
 import stash.composeapp.generated.resources.stash_docker_empty_page_title
 import kotlin.math.roundToInt
-import stash.composeapp.generated.resources.Res
-
 
 
 @Composable
@@ -130,6 +129,7 @@ fun StashDockerScreen(
             Icon(
                 painter = painterResource(Res.drawable.ic_add),
                 contentDescription = stringResource(Res.string.add),
+                tint = Color.Unspecified,
                 modifier = Modifier
                     .size(60.dp)
                     .clickable {
@@ -285,8 +285,9 @@ fun RatingView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(Res.drawable.ic_add),
+            painter = painterResource(Res.drawable.ic_star),
             contentDescription = "Star",
+            tint = Color.Unspecified,
             modifier = Modifier.size(20.dp)
         )
 

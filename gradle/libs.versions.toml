@@ -27,6 +27,7 @@ ktorfitVersion = "2.6.5"
 workmanager = "2.10.2"
 ktor = "3.0.3"
 coil = "3.0.4"
+adaptive = "1.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -67,6 +68,8 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-java = { group = "io.ktor", name = "ktor-client-java", version.ref = "ktor" }
+material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+material3-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
