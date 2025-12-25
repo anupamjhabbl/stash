@@ -8,5 +8,7 @@ fun MainViewController() = ComposeUIViewController(
         KoinInitializer().init()
     }
 ) {
-    App()
+    App(
+        true
+    ) // TODO
 }

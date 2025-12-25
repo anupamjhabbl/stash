@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.workmanager.koin)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.ktor.client.android)
+            implementation(libs.gson.impl)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -71,6 +72,10 @@ kotlin {
             implementation(libs.coil.network.ktor)
             implementation(libs.material3.adaptive)
             implementation(libs.material3.adaptive.layout)
+            implementation(libs.compose.foundation)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.multiplatform.settings)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

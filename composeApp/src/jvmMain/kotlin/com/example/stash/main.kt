@@ -23,7 +23,7 @@ fun main() {
             },
             title = "Stash"
         ) {
-            App()
+            App(true) //TODO
         }
     }
 }

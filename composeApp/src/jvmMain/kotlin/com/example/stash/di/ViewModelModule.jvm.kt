@@ -1,5 +1,10 @@
 package com.example.stash.di
 
+import com.example.stash.auth.viewModels.ForgotPasswordAuthViewModel
+import com.example.stash.auth.viewModels.OTPAuthViewModel
+import com.example.stash.auth.viewModels.PasswordResetVieModel
+import com.example.stash.auth.viewModels.UseRegistrationViewModel
+import com.example.stash.auth.viewModels.UserLoginAuthViewModel
 import com.example.stash.presentation.viewmodels.HomeStashScreenViewModel
 import com.example.stash.presentation.viewmodels.StashDockerViewModel
 import org.koin.core.module.dsl.singleOf
@@ -8,4 +13,9 @@ import org.koin.dsl.module
 actual val viewModelModule = module {
     singleOf(::HomeStashScreenViewModel)
     singleOf(::StashDockerViewModel)
+    singleOf(::OTPAuthViewModel)
+    singleOf(::ForgotPasswordAuthViewModel)
+    singleOf(::PasswordResetVieModel)
+    singleOf(::UseRegistrationViewModel)
+    singleOf(::UserLoginAuthViewModel)
 }

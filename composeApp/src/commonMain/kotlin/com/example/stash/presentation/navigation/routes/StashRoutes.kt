@@ -9,5 +9,21 @@ sealed interface StashRoutes: NavKey {
     data object HomeScreen : StashRoutes
 
     @Serializable
+    data object AuthenticationFormScreen: StashRoutes
+
+    @Serializable
+    data object ForgotPasswordScreen: StashRoutes
+
+    @Serializable
+    data object ResetPasswordScreen: StashRoutes
+
+    @Serializable
+    data class OTPVerificationScreen(
+        val userEmail: String,
+        val origin: String,
+        val userId: String
+    ) : StashRoutes
+
+    @Serializable
     data class DockerScreen(val stashCategoryId: String) : StashRoutes
 }
