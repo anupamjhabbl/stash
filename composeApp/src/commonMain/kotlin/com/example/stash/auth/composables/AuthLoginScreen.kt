@@ -27,10 +27,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,9 +46,11 @@ import androidx.compose.ui.unit.sp
 import com.example.stash.auth.viewModels.UserAuthIntent
 import com.example.stash.auth.viewModels.UserLoginAuthViewModel
 import com.example.stash.common.Constants
+import com.example.stash.common.ObserveAsEventsLatest
 import com.example.stash.common.RequestStatus
+import com.example.stash.common.SnackbarController
+import com.example.stash.common.SnackbarEvent
 import com.example.stash.presentation.viewmodels.koinViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -81,7 +81,6 @@ fun AuthLoginScreen(
     onGoogleLoginClick: () -> Unit,
     goToHomeScreen: () -> Unit
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
     val viewModel: UserLoginAuthViewModel = koinViewModel()
@@ -94,38 +93,42 @@ fun AuthLoginScreen(
         mutableStateOf(false)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.userLoginRequestStatus.collectLatest { userLoginRequestStatus ->
-            when (userLoginRequestStatus) {
-                is RequestStatus.Error -> {
-                    isLoading = false
-                    if (userLoginRequestStatus.message == Constants.DEFAULT_ERROR) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = genericMessage,
-                                duration = SnackbarDuration.Short
+    ObserveAsEventsLatest(
+        viewModel.userLoginRequestStatus
+    ) { userLoginRequestStatus ->
+        when (userLoginRequestStatus) {
+            is RequestStatus.Error -> {
+                isLoading = false
+                if (userLoginRequestStatus.message == Constants.DEFAULT_ERROR) {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = genericMessage
                             )
-                        }
-                    } else {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
                                 message = userLoginRequestStatus.message ?: "",
                                 duration = SnackbarDuration.Short
                             )
-                        }
+                        )
                     }
                 }
+            }
 
-                RequestStatus.Idle -> {  isLoading = false }
+            RequestStatus.Idle -> {  isLoading = false }
 
-                RequestStatus.Loading -> { isLoading = true }
+            RequestStatus.Loading -> { isLoading = true }
 
-                is RequestStatus.Success -> {
-                    isLoading = false
-                    goToHomeScreen()
-                }
+            is RequestStatus.Success -> {
+                isLoading = false
+                goToHomeScreen()
             }
         }
+
     }
 
     if (isLoading) {

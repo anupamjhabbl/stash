@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,7 +41,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -62,10 +61,12 @@ import com.example.stash.auth.entity.OTPState
 import com.example.stash.auth.viewModels.OTPAuthViewModel
 import com.example.stash.auth.viewModels.UserAuthIntent
 import com.example.stash.common.Constants
+import com.example.stash.common.ObserveAsEventsLatest
 import com.example.stash.common.RequestStatus
+import com.example.stash.common.SnackbarController
+import com.example.stash.common.SnackbarEvent
 import com.example.stash.common.StringUtils.isDigitsOnly
 import com.example.stash.presentation.viewmodels.koinViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -88,10 +89,9 @@ fun OTPVerificationScreen(
     goToHomeScreen: () -> Unit,
     onGoBack: () -> Unit
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
-    val  otpResendSuccessMessage = stringResource(Res.string.otp_resend_success_message)
+    val otpResendSuccessMessage = stringResource(Res.string.otp_resend_success_message)
     val viewModel: OTPAuthViewModel = koinViewModel()
     val otpState by viewModel.otpState.collectAsState()
     val focusRequesters = remember {
@@ -119,54 +119,105 @@ fun OTPVerificationScreen(
             keyboardManager?.hide()
         }
     }
-
-    LaunchedEffect(Unit) {
-        viewModel.userOTPResendRequestStatus.collectLatest { otpResendRequestStatus ->
-            when (otpResendRequestStatus) {
-                is RequestStatus.Error -> {
-                    isLoading = false
-                    if (otpResendRequestStatus.message == Constants.DEFAULT_ERROR) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
+    ObserveAsEventsLatest(
+        flow = viewModel.userOTPResendRequestStatus
+    ) { otpResendRequestStatus ->
+        when (otpResendRequestStatus) {
+            is RequestStatus.Error -> {
+                isLoading = false
+                if (otpResendRequestStatus.message == Constants.DEFAULT_ERROR) {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
                                 message = genericMessage,
                                 duration = SnackbarDuration.Short
                             )
-                        }
-                    } else {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
                                 message = otpResendRequestStatus.message ?: "",
                                 duration = SnackbarDuration.Short
                             )
-                        }
-                    }
-                }
-
-                RequestStatus.Idle -> {
-                    isLoading = false
-                }
-
-                RequestStatus.Loading -> {
-                    isLoading = true
-                }
-
-                is RequestStatus.Success -> {
-                    isLoading = false
-                    if (userEmail != null && origin != null) {
-                        viewModel.processEvent(
-                            UserAuthIntent.OTPAuth.ViewEvent.SetData(
-                                userEmail,
-                                otpResendRequestStatus.data,
-                                origin
-                            )
                         )
                     }
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
+                }
+            }
+
+            RequestStatus.Idle -> {
+                isLoading = false
+            }
+
+            RequestStatus.Loading -> {
+                isLoading = true
+            }
+
+            is RequestStatus.Success -> {
+                isLoading = false
+                if (userEmail != null && origin != null) {
+                    viewModel.processEvent(
+                        UserAuthIntent.OTPAuth.ViewEvent.SetData(
+                            userEmail,
+                            otpResendRequestStatus.data,
+                            origin
+                        )
+                    )
+                }
+                scope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
                             message = otpResendSuccessMessage,
                             duration = SnackbarDuration.Short
                         )
+                    )
+                }
+            }
+        }
+    }
+
+    ObserveAsEventsLatest(
+        flow = viewModel.userOTPVerifyRequestStatus
+    ) { otpVerifyRequestStatus ->
+        when (otpVerifyRequestStatus) {
+            is RequestStatus.Error -> {
+                isLoading = false
+                if (otpVerifyRequestStatus.message == Constants.DEFAULT_ERROR) {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = genericMessage,
+                                duration = SnackbarDuration.Short
+                            )
+                        )
                     }
+                } else {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = otpVerifyRequestStatus.message ?: "",
+                                duration = SnackbarDuration.Short
+                            )
+                        )
+                    }
+                }
+            }
+
+            RequestStatus.Idle -> {
+                isLoading = false
+            }
+
+            RequestStatus.Loading -> {
+                isLoading = true
+            }
+
+            is RequestStatus.Success -> {
+                isLoading = false
+                if (origin == Constants.Origin.FORGOT_PASSWORD) {
+                    goToResetPasswordScreen()
+                } else {
+                    goToHomeScreen()
                 }
             }
         }
@@ -175,47 +226,6 @@ fun OTPVerificationScreen(
     LaunchedEffect(Unit) {
         if (userEmail != null && userId != null && origin != null) {
             viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.SetData(userEmail, userId, origin))
-        }
-        launch {
-            viewModel.userOTPVerifyRequestStatus.collectLatest { otpVerifyRequestStatus ->
-                when (otpVerifyRequestStatus) {
-                    is RequestStatus.Error -> {
-                        isLoading = false
-                        if (otpVerifyRequestStatus.message == Constants.DEFAULT_ERROR) {
-                            scope.launch {
-                                snackBarHostState.showSnackbar(
-                                    message = genericMessage,
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        } else {
-                            scope.launch {
-                                snackBarHostState.showSnackbar(
-                                    message = otpVerifyRequestStatus.message ?: "",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        }
-                    }
-
-                    RequestStatus.Idle -> {
-                        isLoading = false
-                    }
-
-                    RequestStatus.Loading -> {
-                        isLoading = true
-                    }
-
-                    is RequestStatus.Success -> {
-                        isLoading = false
-                        if (origin == Constants.Origin.FORGOT_PASSWORD) {
-                            goToResetPasswordScreen()
-                        } else {
-                            goToHomeScreen()
-                        }
-                    }
-                }
-            }
         }
     }
 

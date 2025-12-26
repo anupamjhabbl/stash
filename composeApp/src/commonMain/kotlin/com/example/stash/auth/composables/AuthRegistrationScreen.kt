@@ -26,10 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,9 +45,11 @@ import com.example.stash.auth.entity.PasswordStrengthValidityStatus
 import com.example.stash.auth.viewModels.UseRegistrationViewModel
 import com.example.stash.auth.viewModels.UserAuthIntent
 import com.example.stash.common.Constants
+import com.example.stash.common.ObserveAsEventsLatest
 import com.example.stash.common.RequestStatus
+import com.example.stash.common.SnackbarController
+import com.example.stash.common.SnackbarEvent
 import com.example.stash.presentation.viewmodels.koinViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -72,8 +71,8 @@ import stash.composeapp.generated.resources.password_not_empty
 import stash.composeapp.generated.resources.register_with_apple
 import stash.composeapp.generated.resources.register_with_google
 import stash.composeapp.generated.resources.start_your_jorney
-import stash.composeapp.generated.resources.username_hint
 import stash.composeapp.generated.resources.username
+import stash.composeapp.generated.resources.username_hint
 
 @Composable
 fun AuthRegistrationScreen(
@@ -82,7 +81,6 @@ fun AuthRegistrationScreen(
     onGoogleLoginClick:  () -> Unit,
     onGoToOtpVerificationScreen: (email: String, origin: String, userId: String) -> Unit
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
     val viewModel: UseRegistrationViewModel = koinViewModel()
@@ -97,43 +95,43 @@ fun AuthRegistrationScreen(
         mutableStateOf(false)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.userRegisterRequestStatus.collectLatest { authRegistrationRequestStatus ->
-            when (authRegistrationRequestStatus) {
-                is RequestStatus.Error -> {
-                    isLoading = false
-                    if (authRegistrationRequestStatus.message == Constants.DEFAULT_ERROR) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = genericMessage,
-                                duration = SnackbarDuration.Short
+    ObserveAsEventsLatest(viewModel.userRegisterRequestStatus) { authRegistrationRequestStatus ->
+        when (authRegistrationRequestStatus) {
+            is RequestStatus.Error -> {
+                isLoading = false
+                if (authRegistrationRequestStatus.message == Constants.DEFAULT_ERROR) {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = genericMessage
                             )
-                        }
-                    } else {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = authRegistrationRequestStatus.message ?: "",
-                                duration = SnackbarDuration.Short
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = authRegistrationRequestStatus.message ?: ""
                             )
-                        }
+                        )
                     }
                 }
-
-                RequestStatus.Loading -> {
-                    isLoading = true
-                }
-
-                is RequestStatus.Success -> {
-                    isLoading = false
-                    onGoToOtpVerificationScreen(
-                        state.email,
-                        Constants.Origin.REGISTRATION,
-                        authRegistrationRequestStatus.data.userId
-                    )
-                }
-
-                RequestStatus.Idle -> { isLoading = false }
             }
+
+            RequestStatus.Loading -> {
+                isLoading = true
+            }
+
+            is RequestStatus.Success -> {
+                isLoading = false
+                onGoToOtpVerificationScreen(
+                    state.email,
+                    Constants.Origin.REGISTRATION,
+                    authRegistrationRequestStatus.data.userId
+                )
+            }
+
+            RequestStatus.Idle -> { isLoading = false }
         }
     }
 

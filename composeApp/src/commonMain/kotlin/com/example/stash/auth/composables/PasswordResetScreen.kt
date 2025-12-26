@@ -20,9 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,9 +38,11 @@ import com.example.stash.auth.entity.PasswordStrengthValidityStatus
 import com.example.stash.auth.viewModels.PasswordResetVieModel
 import com.example.stash.auth.viewModels.UserAuthIntent
 import com.example.stash.common.Constants
+import com.example.stash.common.ObserveAsEventsLatest
 import com.example.stash.common.RequestStatus
+import com.example.stash.common.SnackbarController
+import com.example.stash.common.SnackbarEvent
 import com.example.stash.presentation.viewmodels.koinViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -65,7 +65,6 @@ import stash.composeapp.generated.resources.reset_password
 fun PasswordResetScreen(
     goToHome: () -> Unit
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
     val viewModel: PasswordResetVieModel = koinViewModel()
@@ -78,36 +77,38 @@ fun PasswordResetScreen(
     var isCPasswordFocused by remember { mutableStateOf(false) }
     var isLoading  by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.userResetPasswordRequestStatus.collectLatest { resetPasswordRequestStatus ->
-            when (resetPasswordRequestStatus) {
-                is RequestStatus.Error -> {
-                    isLoading = false
-                    if (resetPasswordRequestStatus.message == Constants.DEFAULT_ERROR) {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
+    ObserveAsEventsLatest( viewModel.userResetPasswordRequestStatus) { resetPasswordRequestStatus ->
+        when (resetPasswordRequestStatus) {
+            is RequestStatus.Error -> {
+                isLoading = false
+                if (resetPasswordRequestStatus.message == Constants.DEFAULT_ERROR) {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
                                 message = genericMessage,
                                 duration = SnackbarDuration.Short
                             )
-                        }
-                    } else {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
                                 message = resetPasswordRequestStatus.message ?: "",
                                 duration = SnackbarDuration.Short
                             )
-                        }
+                        )
                     }
                 }
+            }
 
-                RequestStatus.Idle -> { isLoading = false }
+            RequestStatus.Idle -> { isLoading = false }
 
-                RequestStatus.Loading -> { isLoading = true }
+            RequestStatus.Loading -> { isLoading = true }
 
-                is RequestStatus.Success -> {
-                    isLoading = false
-                    goToHome()
-                }
+            is RequestStatus.Success -> {
+                isLoading = false
+                goToHome()
             }
         }
     }
