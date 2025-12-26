@@ -4,13 +4,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
@@ -23,24 +17,21 @@ import com.example.stash.auth.composables.AuthenticationFormScreen
 import com.example.stash.auth.composables.ForgotPasswordScreen
 import com.example.stash.auth.composables.OTPVerificationScreen
 import com.example.stash.auth.composables.PasswordResetScreen
-import com.example.stash.common.ObserveAsEvents
-import com.example.stash.common.SnackbarController
 import com.example.stash.presentation.composables.HomeStashScreen
 import com.example.stash.presentation.composables.StashDockerScreen
 import com.example.stash.presentation.navigation.routes.StashRoutes
 import com.example.stash.presentation.scene.CategoryDockerScene.Companion.homePane
 import com.example.stash.presentation.scene.CategoryDockerScene.Companion.stashDockerPane
 import com.example.stash.presentation.scene.rememberListDetailSceneStrategy
-import kotlinx.coroutines.launch
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 @Composable
 fun NavigationRoot(
-    isUserLogged: Boolean
+    isUserLogged: Boolean,
+    startSync: () -> Unit,
+    stopSync: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val initialScreen = if (isUserLogged) {
         StashRoutes.HomeScreen
     } else {
@@ -66,123 +57,106 @@ fun NavigationRoot(
     )
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
 
-    ObserveAsEvents(
-        flow = SnackbarController.eventChannel,
-        snackbarHostState
-    ) { event ->
-        scope.launch {
-            snackbarHostState.currentSnackbarData?.dismiss()
-
-            val result = snackbarHostState.showSnackbar(
-                message = event.message,
-                actionLabel = event.action.actionLabel,
-                duration = event.duration
-            )
-
-            if(result == SnackbarResult.ActionPerformed) {
-                event.action.action.invoke()
-            }
-        }
-    }
-
-    Scaffold(
-         snackbarHost = {
-             SnackbarHost(snackbarHostState)
-         }
-    ) {
-        NavDisplay(
-            backStack = navBackStack,
-            modifier = Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.systemBars),
-            sceneStrategy = listDetailStrategy,
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider {
-                entry<StashRoutes.HomeScreen>(
-                    metadata = homePane()
-                ) {
-                    HomeStashScreen { item ->
+    NavDisplay(
+        backStack = navBackStack,
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars),
+        sceneStrategy = listDetailStrategy,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<StashRoutes.HomeScreen>(
+                metadata = homePane()
+            ) {
+                HomeStashScreen(
+                    onItemClick = { item ->
                         navBackStack.add(StashRoutes.DockerScreen(item))
-                    }
-                }
-
-                entry<StashRoutes.DockerScreen>(
-                    metadata = stashDockerPane()
+                    },
+                    stopSync = stopSync,
                 ) {
-                    StashDockerScreen(it.stashCategoryId) {
+                    navBackStack.clear()
+                    navBackStack.add(StashRoutes.AuthenticationFormScreen)
+                }
+            }
+
+            entry<StashRoutes.DockerScreen>(
+                metadata = stashDockerPane()
+            ) {
+                StashDockerScreen(it.stashCategoryId) {
+                    navBackStack.removeLastOrNull()
+                }
+            }
+
+            entry<StashRoutes.AuthenticationFormScreen> {
+                AuthenticationFormScreen(
+                    onForgotPasswordClick = {
+                        navBackStack.add(StashRoutes.ForgotPasswordScreen)
+                    },
+                    startSync = startSync,
+                    goToHomeScreen = {
+                        navBackStack.clear()
+                        navBackStack.add(StashRoutes.HomeScreen)
+                    },
+                    onGoToOtpVerificationScreen = { email, origin, userId ->
+                        navBackStack.add(
+                            StashRoutes.OTPVerificationScreen(
+                                email,
+                                origin,
+                                userId
+                            )
+                        )
+                    }
+                )
+            }
+
+            entry<StashRoutes.ForgotPasswordScreen> {
+                ForgotPasswordScreen(
+                    onGoToOtpVerificationScreen = { email, origin, userId ->
+                        navBackStack.add(
+                            StashRoutes.OTPVerificationScreen(
+                                email,
+                                origin,
+                                userId
+                            )
+                        )
+                    },
+                    onGoBack = {
                         navBackStack.removeLastOrNull()
                     }
-                }
-
-                entry<StashRoutes.AuthenticationFormScreen> {
-                    AuthenticationFormScreen(
-                        onForgotPasswordClick = {
-                            navBackStack.add(StashRoutes.ForgotPasswordScreen)
-                        },
-                        goToHomeScreen = {
-                            navBackStack.clear()
-                            navBackStack.add(StashRoutes.HomeScreen)
-                        },
-                        onGoToOtpVerificationScreen = { email, origin, userId ->
-                            navBackStack.add(
-                                StashRoutes.OTPVerificationScreen(
-                                    email,
-                                    origin,
-                                    userId
-                                )
-                            )
-                        }
-                    )
-                }
-
-                entry<StashRoutes.ForgotPasswordScreen> {
-                    ForgotPasswordScreen(
-                        onGoToOtpVerificationScreen = { email, origin, userId ->
-                            navBackStack.add(
-                                StashRoutes.OTPVerificationScreen(
-                                    email,
-                                    origin,
-                                    userId
-                                )
-                            )
-                        },
-                        onGoBack = {
-                            navBackStack.removeLastOrNull()
-                        }
-                    )
-                }
-
-                entry<StashRoutes.ResetPasswordScreen> {
-                    PasswordResetScreen(
-                        goToHome = {
-                            navBackStack.clear()
-                            navBackStack.add(StashRoutes.HomeScreen)
-                        }
-                    )
-                }
-
-                entry<StashRoutes.OTPVerificationScreen> { entry ->
-                    OTPVerificationScreen(
-                        userEmail = entry.userEmail,
-                        origin = entry.origin,
-                        userId = entry.userId,
-                        goToResetPasswordScreen = {
-                            navBackStack.clear()
-                            navBackStack.add(StashRoutes.ResetPasswordScreen)
-                        },
-                        goToHomeScreen = {
-                            navBackStack.clear()
-                            navBackStack.add(StashRoutes.HomeScreen)
-                        },
-                        onGoBack = {
-                            navBackStack.removeLastOrNull()
-                        }
-                    )
-                }
+                )
             }
-        )
-    }
+
+            entry<StashRoutes.ResetPasswordScreen> {
+                PasswordResetScreen(
+                    goToHome = {
+                        navBackStack.clear()
+                        navBackStack.add(StashRoutes.HomeScreen)
+                    }
+                )
+            }
+
+            entry<StashRoutes.OTPVerificationScreen> { entry ->
+                OTPVerificationScreen(
+                    userEmail = entry.userEmail,
+                    origin = entry.origin,
+                    userId = entry.userId,
+                    goToResetPasswordScreen = {
+                        navBackStack.clear()
+                        navBackStack.add(StashRoutes.ResetPasswordScreen)
+                    },
+                    goToHomeScreen = {
+                        navBackStack.clear()
+                        navBackStack.add(StashRoutes.HomeScreen)
+                    },
+                    onGoBack = {
+                        navBackStack.removeLastOrNull()
+                    },
+                    startSync = startSync
+                )
+            }
+        }
+    )
 }

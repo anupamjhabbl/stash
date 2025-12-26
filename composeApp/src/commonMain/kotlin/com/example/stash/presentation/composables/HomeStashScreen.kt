@@ -23,16 +23,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,9 +51,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.example.stash.common.ObserveAsEventsLatest
+import com.example.stash.common.SnackbarController
+import com.example.stash.common.SnackbarEvent
 import com.example.stash.domain.model.dto.StashCategoryWithItem
+import com.example.stash.presentation.viewmodels.HomeStashScreenEffect
 import com.example.stash.presentation.viewmodels.HomeStashScreenViewModel
 import com.example.stash.presentation.viewmodels.koinViewModel
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import stash.composeapp.generated.resources.Res
@@ -65,108 +74,153 @@ import stash.composeapp.generated.resources.home_empty_page_description
 import stash.composeapp.generated.resources.home_empty_page_title
 import stash.composeapp.generated.resources.ic_add
 import stash.composeapp.generated.resources.ic_logo
+import stash.composeapp.generated.resources.logout_failure_message
 
 @Composable
 fun HomeStashScreen(
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    stopSync: () -> Unit,
+    onLogOut: () -> Unit
 ) {
+    val logOutFailureMessage = stringResource(Res.string.logout_failure_message)
     val viewModel = koinViewModel<HomeStashScreenViewModel>()
+    val scope = rememberCoroutineScope()
     val stashScreenState by viewModel.stashScreenState.collectAsStateWithLifecycle()
     val painter = painterResource(Res.drawable.bg_gradient)
     var isDialogVisible by remember {
         mutableStateOf(false)
     }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawBehind {
-                with(painter) {
-                    draw(
-                        size = size,
-                        alpha = 1f
+    ObserveAsEventsLatest(
+        flow = viewModel.homeStashScreenEffect
+    ) { viewEffect ->
+        when (viewEffect) {
+            HomeStashScreenEffect.LogOutFailure -> {
+                scope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = logOutFailureMessage
+                        )
+                    )
+                }
+            }
+            HomeStashScreenEffect.LogOutUser -> {
+                stopSync()
+                onLogOut()
+            }
+        }
+    }
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerContent(
+                viewModel.getLoggedUser()
+            ) {
+                viewModel.logOutUser()
+            }
+        }
+    ) {
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    with(painter) {
+                        draw(
+                            size = size,
+                            alpha = 1f
+                        )
+                    }
+                },
+            topBar = {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.ic_logo),
+                        contentDescription = "Logo",
+                        modifier = Modifier.size(40.dp).clickable {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }
+                    )
+
+                    Spacer(Modifier.width(16.dp))
+
+                    Text(
+                        text = stringResource(Res.string.app_name),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             },
-        topBar = {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(Res.drawable.ic_logo),
-                    contentDescription = "Logo",
-                    modifier = Modifier.size(40.dp)
-                )
-
-                Spacer(Modifier.width(16.dp))
-
-                Text(
-                    text = stringResource(Res.string.app_name),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+            floatingActionButton = {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_add),
+                    contentDescription = "Add",
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clickable {
+                            isDialogVisible = true
+                        }
                 )
             }
-        },
-        floatingActionButton = {
-            Icon(
-                painter = painterResource(Res.drawable.ic_add),
-                contentDescription = "Add",
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clickable {
-                        isDialogVisible = true
-                    }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            if (isDialogVisible) {
-                CategoryAdderDialog(
-                    onCategoryAdd = { categoryName ->
-                        viewModel.addCategoryItem(categoryName)
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                if (isDialogVisible) {
+                    CategoryAdderDialog(
+                        onCategoryAdd = { categoryName ->
+                            viewModel.addCategoryItem(categoryName)
+                            isDialogVisible = false
+                        }
+                    ) {
                         isDialogVisible = false
                     }
-                ) {
-                    isDialogVisible = false
                 }
-            }
 
-            if (stashScreenState.isLoading) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-            } else if (stashScreenState.stashCategoryList.isEmpty()) {
-                EmptyView(
-                    title = stringResource(Res.string.home_empty_page_title),
-                    description = stringResource(Res.string.home_empty_page_description),
-                    actionText = stringResource(Res.string.home_empty_page_action),
-                    onActionClick = {
-                        isDialogVisible = true
+                if (stashScreenState.isLoading) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(40.dp)
+                        )
                     }
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp, 8.dp)
-                ) {
-                    items(stashScreenState.stashCategoryList) { stashCategory ->
-                        Column {
-                            Spacer(modifier = Modifier.height(8.dp))
+                } else if (stashScreenState.stashCategoryList.isEmpty()) {
+                    EmptyView(
+                        title = stringResource(Res.string.home_empty_page_title),
+                        description = stringResource(Res.string.home_empty_page_description),
+                        actionText = stringResource(Res.string.home_empty_page_action),
+                        onActionClick = {
+                            isDialogVisible = true
+                        }
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp, 8.dp)
+                    ) {
+                        items(stashScreenState.stashCategoryList) { stashCategory ->
+                            Column {
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                            StashCategoryItem(stashCategory, onItemClick)
+                                StashCategoryItem(stashCategory, onItemClick)
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                         }
                     }
                 }

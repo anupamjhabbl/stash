@@ -8,5 +8,6 @@ import com.example.stash.common.UUIDUtils
 data class StashCategory(
     @PrimaryKey
     val categoryId: String = UUIDUtils.generateUUID(),
+    val userId: String,
     val categoryName: String = ""
 )

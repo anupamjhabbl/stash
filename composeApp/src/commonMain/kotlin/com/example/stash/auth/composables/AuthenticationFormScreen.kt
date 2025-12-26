@@ -27,7 +27,8 @@ import stash.composeapp.generated.resources.sign_up
 fun AuthenticationFormScreen(
     onForgotPasswordClick: () -> Unit,
     goToHomeScreen: () -> Unit,
-    onGoToOtpVerificationScreen: (email: String, origin: String, userId: String) -> Unit
+    onGoToOtpVerificationScreen: (email: String, origin: String, userId: String) -> Unit,
+    startSync: () -> Unit
 ) {
     val pagerState = rememberPagerState(
         pageCount = { 2 }
@@ -105,7 +106,8 @@ fun AuthenticationFormScreen(
                         onForgotPasswordClick = onForgotPasswordClick,
                         onAppleLoginClick = {},
                         onGoogleLoginClick = {},
-                        goToHomeScreen = goToHomeScreen
+                        goToHomeScreen = goToHomeScreen,
+                        startSync = startSync
                     )
                 }
                 registerPageIndex -> {

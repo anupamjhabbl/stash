@@ -37,7 +37,7 @@ val commonModule = module {
     }
 
     single<StashRemoteRepository> {
-        StashRemoteRepositoryImpl(get<StashClient>(), get<StashDao>())
+        StashRemoteRepositoryImpl(get<StashClient>(), get<StashDao>(), get<AuthPreferencesUseCase>())
     }
 
     single<StashClient> {

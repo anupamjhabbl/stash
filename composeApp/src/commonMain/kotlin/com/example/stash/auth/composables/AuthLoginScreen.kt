@@ -79,7 +79,8 @@ fun AuthLoginScreen(
     onForgotPasswordClick: () -> Unit,
     onAppleLoginClick: () -> Unit,
     onGoogleLoginClick: () -> Unit,
-    goToHomeScreen: () -> Unit
+    goToHomeScreen: () -> Unit,
+    startSync: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
@@ -125,6 +126,7 @@ fun AuthLoginScreen(
 
             is RequestStatus.Success -> {
                 isLoading = false
+                startSync()
                 goToHomeScreen()
             }
         }

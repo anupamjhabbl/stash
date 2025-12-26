@@ -29,12 +29,12 @@ interface StashDao {
     suspend fun insertStashItemList(stashItemList: List<StashItem>)
 
     @Transaction
-    @Query("SELECT * FROM stash_category")
-    fun getCategoriesWithItems(): Flow<List<CategoryWithItems>>
+    @Query("SELECT * FROM stash_category WHERE userId = :loggedUserId")
+    fun getCategoriesWithItems(loggedUserId: String): Flow<List<CategoryWithItems>>
 
     @Transaction
-    @Query("SELECT * FROM stash_category WHERE categoryId = :categoryId")
-    fun getCategoryWithItems(categoryId: String): Flow<CategoryWithItems>
+    @Query("SELECT * FROM stash_category WHERE categoryId = :categoryId AND userId = :loggedUserId")
+    fun getCategoryWithItems(categoryId: String, loggedUserId: String): Flow<CategoryWithItems>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStashCategorySync(stashCategorySync: StashCategorySync)
@@ -49,10 +49,16 @@ interface StashDao {
     suspend fun insertStashItemSyncList(stashItemSyncList: List<StashItemSync>)
 
     @Transaction
-    @Query("SELECT * FROM stash_category")
-    suspend fun getCategoriesWithSyncData(): List<CategoryWithSync>
+    @Query("""
+        SELECT * FROM stash_category
+        WHERE userId = :loggedUserId
+        """)
+    suspend fun getCategoriesWithSyncData(loggedUserId: String): List<CategoryWithSync>
 
     @Transaction
-    @Query("SELECT * FROM stash_item")
-    suspend fun getItemsWithSyncData(): List<StashItemWithSync>
+    @Query("""
+        SELECT * FROM stash_item
+        WHERE userId = :loggedUserId
+        """)
+    suspend fun getItemsWithSyncData(loggedUserId: String): List<StashItemWithSync>
 }

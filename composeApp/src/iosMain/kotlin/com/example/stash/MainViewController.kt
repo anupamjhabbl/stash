@@ -9,6 +9,7 @@ fun MainViewController() = ComposeUIViewController(
     }
 ) {
     App(
-        true
-    ) // TODO
+        startSync = {},
+        stopSync = {}
+    )
 }

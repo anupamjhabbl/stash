@@ -45,4 +45,8 @@ class AuthPreferencesUseCase(
     fun removeUserData() {
         authPreferenceRepository.removeLocalUser()
     }
+
+    fun getLoggedUserId(): String? {
+        return authPreferenceRepository.getLoggedUserId()
+    }
 }

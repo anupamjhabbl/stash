@@ -87,7 +87,8 @@ fun OTPVerificationScreen(
     userId: String?,
     goToResetPasswordScreen: () -> Unit,
     goToHomeScreen: () -> Unit,
-    onGoBack: () -> Unit
+    onGoBack: () -> Unit,
+    startSync: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val genericMessage = stringResource(Res.string.generic_error)
@@ -214,6 +215,7 @@ fun OTPVerificationScreen(
 
             is RequestStatus.Success -> {
                 isLoading = false
+                startSync()
                 if (origin == Constants.Origin.FORGOT_PASSWORD) {
                     goToResetPasswordScreen()
                 } else {

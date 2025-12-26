@@ -14,4 +14,5 @@ interface AuthPreferencesRepository {
     fun saveLocalUser(loggedUser: User)
     fun getLocalUser(): User?
     fun removeLocalUser()
+    fun getLoggedUserId(): String?
 }

@@ -14,16 +14,19 @@ import kotlinx.coroutines.flow.map
 class StashDataRepositoryImpl(
     private val stashDao: StashDao
 ): StashDataRepository {
-    override fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>> {
-        return stashDao.getCategoriesWithItems().map { stashCategoryList ->
+    override fun getCategoryDataWithItems(loggedUserId: String): Flow<List<StashCategoryWithItem>> {
+        return stashDao.getCategoriesWithItems(loggedUserId).map { stashCategoryList ->
             stashCategoryList.map { stashCategory ->
                 stashCategory.mapToDto()
             }
         }
     }
 
-    override suspend fun addStashCategory(categoryName: String) {
-        val stashCategory = StashCategory(categoryName = categoryName)
+    override suspend fun addStashCategory(categoryName: String, loggedUserId: String) {
+        val stashCategory = StashCategory(
+            userId = loggedUserId,
+            categoryName = categoryName
+        )
         stashDao.insertStashCategory(stashCategory)
         stashDao.insertStashCategorySync(
             StashCategorySync(
@@ -33,14 +36,15 @@ class StashDataRepositoryImpl(
         )
     }
 
-    override fun getCategoryDataWithItemsForId(stashCategoryId: String): Flow<StashCategoryWithItem> {
-        val stashCategoryWithItem = stashDao.getCategoryWithItems(stashCategoryId)
+    override fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem> {
+        val stashCategoryWithItem = stashDao.getCategoryWithItems(stashCategoryId, loggedUserId)
         return stashCategoryWithItem.map { stashCategory ->
             stashCategory.mapToDto()
         }
     }
 
     override suspend fun addStashItem(
+        loggedUserId: String,
         stashItemId: String?,
         stashCategoryId: String,
         stashItemName: String,
@@ -51,6 +55,7 @@ class StashDataRepositoryImpl(
         val stashItem = if (stashItemId != null) {
             com.example.stash.domain.model.entity.StashItem(
                 stashItemId = stashItemId,
+                userId = loggedUserId,
                 stashCategoryId = stashCategoryId,
                 stashItemName = stashItemName,
                 stashItemUrl = stashItemUrl,
@@ -60,6 +65,7 @@ class StashDataRepositoryImpl(
         } else {
             com.example.stash.domain.model.entity.StashItem(
                 stashCategoryId = stashCategoryId,
+                userId = loggedUserId,
                 stashItemName = stashItemName,
                 stashItemUrl = stashItemUrl,
                 stashItemRating = stashItemRating,

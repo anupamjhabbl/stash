@@ -22,6 +22,7 @@ data class StashItem(
     @PrimaryKey
     val stashItemId: String = UUIDUtils.generateUUID(),
     val stashCategoryId: String,
+    val userId: String,
     val stashItemName: String = "",
     val stashItemUrl: String = "",
     val stashItemRating: Float = 0f,

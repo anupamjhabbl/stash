@@ -1,5 +1,6 @@
 package com.example.stash.data.repositoryImpl
 
+import com.example.stash.auth.usecases.AuthPreferencesUseCase
 import com.example.stash.data.client.StashClient
 import com.example.stash.data.client.model.StashCategory
 import com.example.stash.data.client.model.StashCategoryBatch
@@ -14,11 +15,13 @@ import com.example.stash.domain.repository.StashRemoteRepository
 
 class StashRemoteRepositoryImpl(
     private val stashClient: StashClient,
-    private val stashDao: StashDao
+    private val stashDao: StashDao,
+    private val authPreferencesUseCase: AuthPreferencesUseCase
 ): StashRemoteRepository {
     override suspend fun updateCategoriesFromRemote() {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         val categoriesFromRemote = stashClient.getCategories().stashCategoryList
-        val categoriesFromLocal = stashDao.getCategoriesWithSyncData()
+        val categoriesFromLocal = stashDao.getCategoriesWithSyncData(loggedUserId)
         val localCategoriesById = categoriesFromLocal.associateBy {
             it.stashCategory.categoryId
         }
@@ -26,13 +29,13 @@ class StashRemoteRepositoryImpl(
         val categorySyncListToUpdate = mutableListOf<StashCategorySync>()
 
         categoriesFromRemote.forEach { remote ->
-
             val remoteCategory = remote.stashCategory
             val local = localCategoriesById[remoteCategory.categoryId]
 
             val stashCategory = com.example.stash.domain.model.entity.StashCategory(
                 categoryId = remoteCategory.categoryId,
-                categoryName = remoteCategory.categoryName
+                categoryName = remoteCategory.categoryName,
+                userId = loggedUserId
             )
 
             when {
@@ -67,8 +70,9 @@ class StashRemoteRepositoryImpl(
     }
 
     override suspend fun updateItemsFromRemote() {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         val itemsFromRemote = stashClient.getItems().stashItemList
-        val itemsFromLocal = stashDao.getItemsWithSyncData()
+        val itemsFromLocal = stashDao.getItemsWithSyncData(loggedUserId)
         val localItemsById = itemsFromLocal.associateBy {
             it.stashItem.stashItemId
         }
@@ -86,7 +90,8 @@ class StashRemoteRepositoryImpl(
                 stashItemName = remoteItem.stashItemName,
                 stashItemUrl = remoteItem.stashItemUrl,
                 stashItemRating = remoteItem.stashItemRating,
-                stashItemCompleted = remoteItem.stashItemCompleted
+                stashItemCompleted = remoteItem.stashItemCompleted,
+                userId = loggedUserId
             )
 
             when {
@@ -120,7 +125,10 @@ class StashRemoteRepositoryImpl(
     }
 
     override suspend fun updateCategoriesToRemote() {
-        val categoryWithSync = stashDao.getCategoriesWithSyncData()
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
+        val categoryWithSync = stashDao.getCategoriesWithSyncData(
+            loggedUserId
+        )
         val filteredCategoryWithSync = categoryWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
         val filteredCategoryWithSyncForUpdate = filteredCategoryWithSync.map {
             StashCategory(
@@ -146,7 +154,8 @@ class StashRemoteRepositoryImpl(
     }
 
     override suspend fun updateItemsToRemote() {
-        val itemsWithSync = stashDao.getItemsWithSyncData()
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
+        val itemsWithSync = stashDao.getItemsWithSyncData(loggedUserId)
         val filteredItemsWithSync =  itemsWithSync.filter { it.syncData.syncStatus == SyncStatus.PENDING.status }
         val filteredItemsWithSyncForUpdate = filteredItemsWithSync.map {
             StashItem(

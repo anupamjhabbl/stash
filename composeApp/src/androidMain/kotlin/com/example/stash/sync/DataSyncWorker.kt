@@ -41,5 +41,10 @@ class DataSyncWorker(
                 request = workManagerBuilder.build()
             )
         }
+
+        fun stopWorker(context: Context) {
+            WorkManager.getInstance(context)
+                .cancelUniqueWork(Constants.TASK_IDENTIFIER)
+        }
     }
 }

@@ -2,15 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "189bf1e92510ebaffcd5c831a5ab6102",
+    "identityHash": "39b88507d0b5c1a77f975a4db59e81d9",
     "entities": [
       {
         "tableName": "stash_category",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` TEXT NOT NULL, `categoryName` TEXT NOT NULL, PRIMARY KEY(`categoryId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` TEXT NOT NULL, `userId` TEXT NOT NULL, `categoryName` TEXT NOT NULL, PRIMARY KEY(`categoryId`))",
         "fields": [
           {
             "fieldPath": "categoryId",
             "columnName": "categoryId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -30,7 +36,7 @@
       },
       {
         "tableName": "stash_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemId` TEXT NOT NULL, `stashCategoryId` TEXT NOT NULL, `stashItemName` TEXT NOT NULL, `stashItemUrl` TEXT NOT NULL, `stashItemRating` REAL NOT NULL, `stashItemCompleted` TEXT NOT NULL, PRIMARY KEY(`stashItemId`), FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stashItemId` TEXT NOT NULL, `stashCategoryId` TEXT NOT NULL, `userId` TEXT NOT NULL, `stashItemName` TEXT NOT NULL, `stashItemUrl` TEXT NOT NULL, `stashItemRating` REAL NOT NULL, `stashItemCompleted` TEXT NOT NULL, PRIMARY KEY(`stashItemId`), FOREIGN KEY(`stashCategoryId`) REFERENCES `stash_category`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "stashItemId",
@@ -41,6 +47,12 @@
           {
             "fieldPath": "stashCategoryId",
             "columnName": "stashCategoryId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -201,7 +213,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '189bf1e92510ebaffcd5c831a5ab6102')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39b88507d0b5c1a77f975a4db59e81d9')"
     ]
   }
 }

@@ -2,6 +2,7 @@ package com.example.stash.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stash.auth.usecases.AuthPreferencesUseCase
 import com.example.stash.domain.model.dto.StashCategoryWithItem
 import com.example.stash.domain.usecase.StashDataUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class StashDockerViewModel(
-    private val stashDataUseCase: StashDataUseCase
+    private val stashDataUseCase: StashDataUseCase,
+    private val authPreferencesUseCase: AuthPreferencesUseCase
 ): ViewModel() {
     private var stashCategoryId: String? = null
     private val _stashScreenState: MutableStateFlow<StashDockerScreenState> = MutableStateFlow(StashDockerScreenState())
@@ -21,8 +23,13 @@ class StashDockerViewModel(
 
     fun init(stashCategoryId: String) {
         this.stashCategoryId = stashCategoryId
+        getStashData(stashCategoryId)
+    }
+
+    private fun getStashData(stashCategoryId: String) {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
-            stashDataUseCase.getCategoryDataWithItemsForId(stashCategoryId).onStart {
+            stashDataUseCase.getCategoryDataWithItemsForId(stashCategoryId, loggedUserId).onStart {
                 _stashScreenState.update {
                     it.copy(isLoading = true)
                 }
@@ -39,6 +46,7 @@ class StashDockerViewModel(
     }
 
     fun addStashItem(stashItemId: String?, stashItemName: String, stashItemUrl: String, stashItemRating: Float, stashItemCompletedStatus: String) {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         stashCategoryId?.let { stashCategoryId ->
             viewModelScope.launch {
                 _stashScreenState.update {
@@ -46,6 +54,7 @@ class StashDockerViewModel(
                 }
                 try {
                     stashDataUseCase.addStashItem(
+                        loggedUserId,
                         stashItemId,
                         stashCategoryId,
                         stashItemName,

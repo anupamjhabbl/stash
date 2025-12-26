@@ -5,21 +5,22 @@ import com.example.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 
 class StashDataUseCase(
-    private val stashDataRepository: StashDataRepository
+    private val stashDataRepository: StashDataRepository,
 ) {
-    fun getCategoryDataWithItems(): Flow<List<StashCategoryWithItem>> {
-        return stashDataRepository.getCategoryDataWithItems()
+    fun getCategoryDataWithItems(loggedUserId: String): Flow<List<StashCategoryWithItem>> {
+        return stashDataRepository.getCategoryDataWithItems(loggedUserId)
     }
 
-    suspend fun addStashCategory(categoryName: String) {
-        stashDataRepository.addStashCategory(categoryName)
+    suspend fun addStashCategory(categoryName: String, loggedUserId: String) {
+        stashDataRepository.addStashCategory(categoryName, loggedUserId)
     }
 
-    fun getCategoryDataWithItemsForId(stashCategoryId: String): Flow<StashCategoryWithItem>{
-        return stashDataRepository.getCategoryDataWithItemsForId(stashCategoryId)
+    fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem>{
+        return stashDataRepository.getCategoryDataWithItemsForId(stashCategoryId, loggedUserId)
     }
 
     suspend fun addStashItem(
+        loggedUserId: String,
         stashItemId: String?,
         stashCategoryId: String,
         stashItemName: String,
@@ -28,6 +29,7 @@ class StashDataUseCase(
         itemCompletedStatus: String
     ) {
         stashDataRepository.addStashItem(
+            loggedUserId,
             stashItemId,
             stashCategoryId,
             stashItemName,

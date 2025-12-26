@@ -12,7 +12,6 @@ fun main() {
     val scheduler: JvmSyncScheduler = org.koin.java.KoinJavaComponent.get(
         JvmSyncScheduler::class.java
     )
-    scheduler.start()
 
     application {
         Window(
@@ -23,7 +22,13 @@ fun main() {
             },
             title = "Stash"
         ) {
-            App(true) //TODO
+            App(
+                startSync = {
+                    scheduler.start()
+                }
+            ) {
+                scheduler.stop()
+            }
         }
     }
 }

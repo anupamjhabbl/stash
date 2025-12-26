@@ -57,4 +57,8 @@ class AuthPreferencesNetwork(
     override fun removeLocalUser() {
         preferenceManager.removeLocalUser()
     }
+
+    override fun getLoggedUserId(): String? {
+        return getLocalUser()?.id
+    }
 }
