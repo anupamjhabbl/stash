@@ -1,0 +1,41 @@
+package com.bbl.stash.auth.repositoryImpl
+
+import com.bbl.stash.auth.clients.UserAuthClient
+import com.bbl.stash.auth.entity.AuthToken
+import com.bbl.stash.auth.entity.BaseResponse
+import com.bbl.stash.auth.entity.PasswordResetResponse
+import com.bbl.stash.auth.entity.UserForgetPasswordBody
+import com.bbl.stash.auth.entity.UserLoginBody
+import com.bbl.stash.auth.entity.UserOTPVerifyBody
+import com.bbl.stash.auth.entity.UserPasswordResetBody
+import com.bbl.stash.auth.entity.UserRegisteredId
+import com.bbl.stash.auth.entity.UserRegistrationBody
+import com.bbl.stash.auth.repositories.UserAuthRepository
+
+class UserAuthNetwork(
+    private val userAuthClient: UserAuthClient
+): UserAuthRepository {
+    override suspend fun registerUser(userRegistrationBody: UserRegistrationBody): BaseResponse<UserRegisteredId> {
+        return userAuthClient.registerUser(userRegistrationBody)
+    }
+
+    override suspend fun loginUser(userLoginBody: UserLoginBody): BaseResponse<AuthToken> {
+        return userAuthClient.loginUser(userLoginBody)
+    }
+
+    override suspend fun verifyOTP(userOTPVerifyBody: UserOTPVerifyBody, origin: String): BaseResponse<AuthToken> {
+        return userAuthClient.verifyOTP(userOTPVerifyBody, origin)
+    }
+
+    override suspend fun forgetPasswordRequestOTP(userForgetPasswordBody: UserForgetPasswordBody): BaseResponse<UserRegisteredId> {
+        return userAuthClient.forgetPasswordRequestOTP(userForgetPasswordBody)
+    }
+
+    override suspend fun resetPassword(userResetBody: UserPasswordResetBody, accessToken: String): BaseResponse<PasswordResetResponse> {
+        return userAuthClient.resetPassword(userResetBody, accessToken)
+    }
+
+    override suspend fun getNewAccessToken(refreshToken: String): BaseResponse<AuthToken> {
+        return userAuthClient.getNewAccessToken(refreshToken)
+    }
+}

@@ -93,11 +93,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.stash"
+    namespace = "com.bbl.stash"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.stash"
+        applicationId = "com.bbl.stash"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -133,11 +133,11 @@ room {
 
 compose.desktop {
     application {
-        mainClass = "com.example.stash.MainKt"
+        mainClass = "com.bbl.stash.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.example.stash"
+            packageName = "com.bbl.stash"
             packageVersion = "1.0.0"
         }
     }
