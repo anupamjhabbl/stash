@@ -2,7 +2,7 @@
 
 _A Kotlin Multiplatform application for saving and organizing your items, built with Compose Multiplatform._
 
-Stash is a simple, modern application designed to help you keep track of your things. Whether it's a collection of articles, links, or personal notes, Stash provides a clean interface to organize them into categories. It's built from the ground up using Kotlin Multiplatform, allowing it to run on Android, iOS, and Desktop (JVM) from a single shared codebase.
+Stash is a simple, modern application designed to help you keep track of your things. Whether it's a collection of books, movies, articles, links, goals or personal notes, Stash provides a clean interface to organize them into categories. It's built from the ground up using Kotlin Multiplatform, allowing it to run on Android, iOS, and Desktop (JVM) from a single shared codebase.
 
 ## ✨ Features
 
