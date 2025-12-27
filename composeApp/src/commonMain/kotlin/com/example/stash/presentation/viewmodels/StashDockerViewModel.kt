@@ -73,7 +73,7 @@ class StashDockerViewModel(
 }
 
 data class StashDockerScreenState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val stashItemList: StashCategoryWithItem? = null
 )
 

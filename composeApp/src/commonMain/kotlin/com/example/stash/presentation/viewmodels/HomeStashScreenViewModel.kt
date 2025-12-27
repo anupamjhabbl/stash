@@ -94,7 +94,7 @@ class HomeStashScreenViewModel(
 }
 
 data class HomeStashScreenState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val stashCategoryList: List<StashCategoryWithItem> = emptyList()
 )
 
