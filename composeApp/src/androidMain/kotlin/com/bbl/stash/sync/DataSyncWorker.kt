@@ -8,7 +8,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.bbl.stash.common.Constants
-import com.bbl.stash.domain.repository.StashRemoteRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
@@ -17,11 +16,15 @@ class DataSyncWorker(
     context: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(context, workerParameters), KoinComponent {
-    private val repository: StashRemoteRepository by inject()
+    private val stashSyncManager: StashSyncManager by inject()
 
     override suspend fun doWork(): Result {
-        StashDataSync(repository).syncData()
-        return Result.success()
+        try {
+            stashSyncManager.syncData()
+            return Result.success()
+        } catch (_: Exception) {
+            return Result.failure()
+        }
     }
 
     companion object {

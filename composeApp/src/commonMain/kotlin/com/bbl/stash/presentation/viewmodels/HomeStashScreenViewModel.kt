@@ -8,6 +8,9 @@ import com.bbl.stash.auth.usecases.ProfileUseCase
 import com.bbl.stash.common.SafeIOUtil
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
 import com.bbl.stash.domain.usecase.StashDataUseCase
+import com.bbl.stash.sync.StashSyncManager
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +25,8 @@ import kotlinx.coroutines.launch
 class HomeStashScreenViewModel(
     private val stashDataUseCase: StashDataUseCase,
     private val profileUseCase: ProfileUseCase,
-    private val authPreferencesUseCase: AuthPreferencesUseCase
+    private val authPreferencesUseCase: AuthPreferencesUseCase,
+    private val stashSyncManager: StashSyncManager
 ): ViewModel() {
     private val _stashScreenState: MutableStateFlow<HomeStashScreenState> = MutableStateFlow(HomeStashScreenState())
     val stashScreenState: StateFlow<HomeStashScreenState> = _stashScreenState.asStateFlow()
@@ -77,18 +81,24 @@ class HomeStashScreenViewModel(
     fun logOutUser() {
         viewModelScope.launch {
             _stashScreenState.update { it.copy(isLoading = true) }
-            val result = SafeIOUtil.safeCall {
-                profileUseCase.logoutUser()
+            val logOutResult = async {
+                SafeIOUtil.safeCall {
+                    profileUseCase.logoutUser()
+                }
             }
-            result.onSuccess {
+            val dataSyncResult = async {
+                SafeIOUtil.safeCall {
+                    stashSyncManager.syncData()
+                }
+            }
+            val (resultLogOut, resultDataSync) = awaitAll(logOutResult, dataSyncResult)
+            if (resultLogOut.isSuccess && resultDataSync.isSuccess) {
                 authPreferencesUseCase.removeUserData()
-                _stashScreenState.update { it.copy(isLoading = false) }
                 _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutUser)
-            }
-            result.onFailure {
-                _stashScreenState.update { it.copy(isLoading = false) }
+            } else {
                 _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutFailure)
             }
+            _stashScreenState.update { it.copy(isLoading = false) }
         }
     }
 }

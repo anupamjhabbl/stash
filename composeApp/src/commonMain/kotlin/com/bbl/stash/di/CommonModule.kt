@@ -25,6 +25,7 @@ import com.bbl.stash.data.repositoryImpl.StashRemoteRepositoryImpl
 import com.bbl.stash.domain.repository.StashDataRepository
 import com.bbl.stash.domain.repository.StashRemoteRepository
 import com.bbl.stash.domain.usecase.StashDataUseCase
+import com.bbl.stash.sync.StashSyncManager
 import org.koin.dsl.module
 
 val commonModule = module {
@@ -81,5 +82,9 @@ val commonModule = module {
 
     single<ProfileUseCase> {
         ProfileUseCase(get<GetProfileRepository>())
+    }
+
+    single<StashSyncManager> {
+        StashSyncManager(get<StashRemoteRepository>())
     }
 }

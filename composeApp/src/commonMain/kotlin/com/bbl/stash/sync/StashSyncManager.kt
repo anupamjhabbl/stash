@@ -2,7 +2,7 @@ package com.bbl.stash.sync
 
 import com.bbl.stash.domain.repository.StashRemoteRepository
 
-class StashDataSync(
+class StashSyncManager(
     private val stashRemoteRepository: StashRemoteRepository
 ) {
     suspend fun syncData() {

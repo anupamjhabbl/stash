@@ -1,6 +1,5 @@
 package com.bbl.stash.sync
 
-import com.bbl.stash.domain.repository.StashRemoteRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -11,16 +10,14 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
 
 class JvmSyncScheduler(
-    repository: StashRemoteRepository,
+    val stashSyncManager: StashSyncManager,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
-    val stashDataSync = StashDataSync(repository)
-
     fun start() {
         scope.launch {
             while (isActive) {
                 try {
-                    stashDataSync.syncData()
+                    stashSyncManager.syncData()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
