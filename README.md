@@ -1,48 +1,86 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
+# Stash
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+_A Kotlin Multiplatform application for saving and organizing your items, built with Compose Multiplatform._
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+Stash is a simple, modern application designed to help you keep track of your things. Whether it's a collection of articles, links, or personal notes, Stash provides a clean interface to organize them into categories. It's built from the ground up using Kotlin Multiplatform, allowing it to run on Android, iOS, and Desktop (JVM) from a single shared codebase.
 
-### Build and Run Android Application
+## ✨ Features
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+*   **Cross-Platform:** Runs natively on Android, iOS, and Desktop (JVM).
+*   **Shared UI:** A single, modern user interface built entirely with Compose Multiplatform.
+*   **Shared Business Logic:** ViewModels, UseCases, and Repositories are all written once in `commonMain`.
+*   **Categorization:** Organize your stashed items into custom categories.
+*   **Asynchronous Data Sync:** A background scheduler for the desktop app keeps data up-to-date.
 
-### Build and Run Desktop (JVM) Application
+## 🛠️ Tech Stack & Architecture
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+This project follows a modern, scalable architecture with a focus on code sharing.
 
-### Build and Run iOS Application
+*   **Kotlin Multiplatform:** For sharing code between platforms.
+*   **Compose Multiplatform:** For building the UI for Android, iOS, and Desktop from a single codebase.
+*   **MVVM Architecture:** Using platform-agnostic ViewModels to separate UI from business logic.
+*   **Coroutines:** For managing asynchronous operations and background tasks.
+*   **Koin:** For dependency injection across all platforms.
+*   **Domain-Driven Layers:** The logic is separated into `presentation`, `domain` (UseCases), and `data` (Repositories) layers within the `commonMain` source set.
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+## 📂 Project Structure
 
----
+The project is organized into a multi-module structure, with the core logic residing in the `composeApp` module.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+```
+.
+├── composeApp
+│   ├── src
+│   │   ├── commonMain  // Shared code (ViewModels, UseCases, Composables, etc.)
+│   │   ├── androidMain // Android-specific code and resources
+│   │   ├── iosMain     // iOS-specific code and entry point
+│   │   └── jvmMain     // Desktop app entry point and sync scheduler
+│   └── build.gradle.kts
+└── build.gradle.kts
+```
+
+*   `commonMain`: Contains all the shared logic, including ViewModels, domain models, use cases, repositories, and the Compose UI.
+*   `androidMain`: The Android application entry point, platform-specific dependencies, and `AndroidManifest.xml`.
+*   `iosMain`: The iOS application entry point (`MainViewController.kt`) and any iOS-specific code.
+*   `jvmMain`: The desktop application entry point (`main.kt`) and any desktop-specific implementations, like the `JvmSyncScheduler`.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+*   **JDK 17** or higher.
+*   **Android Studio** (latest version recommended).
+*   **Xcode** (for running the iOS app).
+
+### Running the Application
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    ```
+2.  Open the project in Android Studio.
+3.  Let Gradle sync and download dependencies.
+
+#### ▶️ Android
+
+Select the `composeApp` run configuration in Android Studio and choose an Android emulator or a connected device. Click the "Run" button.
+
+#### ▶️ iOS
+
+Select an iOS Simulator target from the run configuration dropdown in Android Studio and click "Run". Alternatively, you can open the generated `iosApp.xcworkspace` in Xcode and run the project from there.
+
+#### ▶️ Desktop
+
+To run the desktop application, execute the following Gradle task in the terminal:
+
+```bash
+./gradlew :composeApp:run
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! If you find a bug or have a feature request, please open an issue. If you want to contribute code, please feel free to submit a pull request.
+
+## 📄 License
+
+This project is licensed under the MIT License. You can create a `LICENSE` file and add the license text there.
