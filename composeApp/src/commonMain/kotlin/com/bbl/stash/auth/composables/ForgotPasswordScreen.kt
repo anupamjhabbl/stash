@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -118,114 +120,123 @@ fun ForgotPasswordScreen(
             )
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 32.dp)
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Box(
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                    .size(32.dp)
-            ) {
-                IconButton(
-                    onClick = onGoBack
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.Unspecified
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ComposeTextView.TitleTextView(
-                text = stringResource(Res.string.forgot_password)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ComposeTextView.TextView(
-                text = stringResource(Res.string.forgot_password_subtitle),
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            ComposeTextView.TextView(
-                text = stringResource(Res.string.email),
-                fontSize = 16.sp
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            OutlinedTextField(
-                value = state.email,
-                onValueChange = {
-                    viewModel.processEvent(
-                        UserAuthIntent.ForgetPasswordAuth.ViewEvent.UpdateEmail(
-                            it
-                        )
-                    )
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            hasEmailFocused = true
-                        }
-                        isEmailFocused = focusState.isFocused
-                    },
-                placeholder = {
-                    ComposeTextView.TextView(
-                        text = stringResource(Res.string.email_hint),
-                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontSize = 16.sp
+                    .widthIn(max = 450.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 32.dp)
+            ) {
+                Box(
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.secondaryContainer,
+                        CircleShape
                     )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
-                isError = !state.isValid && hasEmailFocused && !isEmailFocused,
-                supportingText = {
-                    if (!state.isValid && hasEmailFocused && !isEmailFocused) {
-                        ComposeTextView.TextView(
-                            text = stringResource(Res.string.invalid_email_alert),
-                            textColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        .size(32.dp)
+                ) {
+                    IconButton(
+                        onClick = onGoBack
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_arrow_back),
+                            contentDescription = "Back",
+                            tint = Color.Unspecified
                         )
                     }
                 }
-            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-            Button(
-                onClick = {
-                    viewModel.processEvent(UserAuthIntent.ForgetPasswordAuth.ViewEvent.ResetPassword)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                enabled = state.isValid,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            ) {
                 ComposeTextView.TitleTextView(
-                    text = stringResource(Res.string.reset_password),
-                    textColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    text = stringResource(Res.string.forgot_password)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(Res.string.forgot_password_subtitle),
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(Res.string.email),
                     fontSize = 16.sp
                 )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                OutlinedTextField(
+                    value = state.email,
+                    onValueChange = {
+                        viewModel.processEvent(
+                            UserAuthIntent.ForgetPasswordAuth.ViewEvent.UpdateEmail(
+                                it
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                hasEmailFocused = true
+                            }
+                            isEmailFocused = focusState.isFocused
+                        },
+                    placeholder = {
+                        ComposeTextView.TextView(
+                            text = stringResource(Res.string.email_hint),
+                            textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontSize = 16.sp
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors().copy(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    isError = !state.isValid && hasEmailFocused && !isEmailFocused,
+                    supportingText = {
+                        if (!state.isValid && hasEmailFocused && !isEmailFocused) {
+                            ComposeTextView.TextView(
+                                text = stringResource(Res.string.invalid_email_alert),
+                                textColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.processEvent(UserAuthIntent.ForgetPasswordAuth.ViewEvent.ResetPassword)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = state.isValid,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    ComposeTextView.TitleTextView(
+                        text = stringResource(Res.string.reset_password),
+                        textColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

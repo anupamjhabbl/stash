@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -122,106 +123,113 @@ fun HomeStashScreen(
             }
         }
     ) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .drawBehind {
-                    with(painter) {
-                        draw(
-                            size = size,
-                            alpha = 1f
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Scaffold(
+                modifier = Modifier
+                    .widthIn(max = 550.dp)
+                    .fillMaxSize()
+                    .drawBehind {
+                        with(painter) {
+                            draw(
+                                size = size,
+                                alpha = 1f
+                            )
+                        }
+                    },
+                topBar = {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.ic_logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.size(40.dp).clickable {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
+                                }
+                            }
+                        )
+
+                        Spacer(Modifier.width(16.dp))
+
+                        Text(
+                            text = stringResource(Res.string.app_name),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
-            topBar = {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                floatingActionButton = {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_add),
+                        contentDescription = "Add",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clickable {
+                                isDialogVisible = true
+                            }
+                    )
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier.padding(paddingValues)
                 ) {
-                    Image(
-                        painter = painterResource(Res.drawable.ic_logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(40.dp).clickable {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
+                    if (isDialogVisible) {
+                        CategoryAdderDialog(
+                            onCategoryAdd = { categoryName ->
+                                viewModel.addCategoryItem(categoryName)
+                                isDialogVisible = false
+                            }
+                        ) {
+                            isDialogVisible = false
+                        }
+                    }
+
+                    if (stashScreenState.isLoading) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    } else if (stashScreenState.stashCategoryList.isEmpty()) {
+                        EmptyView(
+                            title = stringResource(Res.string.home_empty_page_title),
+                            description = stringResource(Res.string.home_empty_page_description),
+                            actionText = stringResource(Res.string.home_empty_page_action),
+                            onActionClick = {
+                                isDialogVisible = true
+                            }
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp, 8.dp)
+                        ) {
+                            items(stashScreenState.stashCategoryList) { stashCategory ->
+                                Column {
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    StashCategoryItem(stashCategory, onItemClick)
+
+                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
                         }
-                    )
 
-                    Spacer(Modifier.width(16.dp))
-
-                    Text(
-                        text = stringResource(Res.string.app_name),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            floatingActionButton = {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_add),
-                    contentDescription = "Add",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable {
-                            isDialogVisible = true
-                        }
-                )
-            }
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier.padding(paddingValues)
-            ) {
-                if (isDialogVisible) {
-                    CategoryAdderDialog(
-                        onCategoryAdd = { categoryName ->
-                            viewModel.addCategoryItem(categoryName)
-                            isDialogVisible = false
-                        }
-                    ) {
-                        isDialogVisible = false
-                    }
-                }
-
-                if (stashScreenState.isLoading) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
-                } else if (stashScreenState.stashCategoryList.isEmpty()) {
-                    EmptyView(
-                        title = stringResource(Res.string.home_empty_page_title),
-                        description = stringResource(Res.string.home_empty_page_description),
-                        actionText = stringResource(Res.string.home_empty_page_action),
-                        onActionClick = {
-                            isDialogVisible = true
-                        }
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp, 8.dp)
-                    ) {
-                        items(stashScreenState.stashCategoryList) { stashCategory ->
-                            Column {
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                StashCategoryItem(stashCategory, onItemClick)
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                        }
                     }
                 }
             }

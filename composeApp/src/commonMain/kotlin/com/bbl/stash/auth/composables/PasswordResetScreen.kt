@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -122,194 +124,204 @@ fun PasswordResetScreen(
             )
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 32.dp)
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Box(
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                    .size(32.dp)
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 450.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 32.dp)
             ) {
-                IconButton(
-                    onClick = goToHome
+                Box(
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.secondaryContainer,
+                        CircleShape
+                    )
+                        .size(32.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.Unspecified
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ComposeTextView.TitleTextView(
-                text = stringResource(Res.string.new_password_title)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ComposeTextView.TextView(
-                text = stringResource(Res.string.new_password_subtitle),
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            ComposeTextView.TextView(
-                text = stringResource(Res.string.password),
-                fontSize = 16.sp
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = {
-                    viewModel.processEvent(
-                        UserAuthIntent.ResetPasswordAuth.ViewEvent.UpdatePassword(
-                            it
-                        )
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            hasPasswordFocused = true
-                        }
-                        isPasswordFocused = focusState.isFocused
-                    },
-                placeholder = {
-                    ComposeTextView.TextView(
-                        text = stringResource(Res.string.new_password_hint),
-                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontSize = 16.sp
-                    )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
                     IconButton(
-                        onClick = { passwordVisible = !passwordVisible },
-                        modifier = Modifier.size(24.dp)
+                        onClick = goToHome
                     ) {
                         Icon(
-                            painter = if (passwordVisible) painterResource(Res.drawable.ic_visibility_on) else painterResource(
-                                Res.drawable.ic_visibility_off
-                            ),
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
-                isError = state.passwordValid != PasswordStrengthValidityStatus.VALID && !isPasswordFocused && hasPasswordFocused,
-                supportingText = {
-                    if (state.passwordValid != PasswordStrengthValidityStatus.VALID && !isPasswordFocused && hasPasswordFocused) {
-                        ComposeTextView.TextView(
-                            text = state.passwordValid?.message ?: stringResource(Res.string.password_not_empty),
-                            textColor = MaterialTheme.colorScheme.onErrorContainer
+                            painter = painterResource(Res.drawable.ic_arrow_back),
+                            contentDescription = "Back",
+                            tint = Color.Unspecified
                         )
                     }
                 }
-            )
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-            ComposeTextView.TextView(
-                text = stringResource(Res.string.confirm_password),
-                fontSize = 16.sp
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            OutlinedTextField(
-                value = state.confirmPassword,
-                onValueChange = {
-                    viewModel.processEvent(
-                        UserAuthIntent.ResetPasswordAuth.ViewEvent.UpdateConfirmPassword(
-                            it
-                        )
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            hasCPasswordFocused = true
-                        }
-                        isCPasswordFocused = focusState.isFocused
-                    },
-                placeholder = {
-                    ComposeTextView.TextView(
-                        text = stringResource(Res.string.confirm_password_hint),
-                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontSize = 16.sp
-                    )
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(
-                        onClick = { confirmPasswordVisible = !confirmPasswordVisible },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            painter = if (confirmPasswordVisible) painterResource(Res.drawable.ic_visibility_on) else painterResource(
-                                Res.drawable.ic_visibility_off
-                            ),
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
-                isError = !state.confirmPasswordValid && !isCPasswordFocused && hasCPasswordFocused,
-                supportingText = {
-                    if (!state.confirmPasswordValid && !isCPasswordFocused && hasCPasswordFocused) {
-                        ComposeTextView.TextView(
-                            text = stringResource(Res.string.both_password_not_matching_alert),
-                            textColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    viewModel.processEvent(UserAuthIntent.ResetPasswordAuth.ViewEvent.ResetPassword)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                enabled = state.confirmPasswordValid && state.passwordValid == PasswordStrengthValidityStatus.VALID,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            ) {
                 ComposeTextView.TitleTextView(
-                    text = stringResource(Res.string.reset_password),
-                    textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    text = stringResource(Res.string.new_password_title)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(Res.string.new_password_subtitle),
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(Res.string.password),
                     fontSize = 16.sp
                 )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                OutlinedTextField(
+                    value = state.password,
+                    onValueChange = {
+                        viewModel.processEvent(
+                            UserAuthIntent.ResetPasswordAuth.ViewEvent.UpdatePassword(
+                                it
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                hasPasswordFocused = true
+                            }
+                            isPasswordFocused = focusState.isFocused
+                        },
+                    placeholder = {
+                        ComposeTextView.TextView(
+                            text = stringResource(Res.string.new_password_hint),
+                            textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontSize = 16.sp
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { passwordVisible = !passwordVisible },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                painter = if (passwordVisible) painterResource(Res.drawable.ic_visibility_on) else painterResource(
+                                    Res.drawable.ic_visibility_off
+                                ),
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors().copy(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    isError = state.passwordValid != PasswordStrengthValidityStatus.VALID && !isPasswordFocused && hasPasswordFocused,
+                    supportingText = {
+                        if (state.passwordValid != PasswordStrengthValidityStatus.VALID && !isPasswordFocused && hasPasswordFocused) {
+                            ComposeTextView.TextView(
+                                text = state.passwordValid?.message
+                                    ?: stringResource(Res.string.password_not_empty),
+                                textColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(Res.string.confirm_password),
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                OutlinedTextField(
+                    value = state.confirmPassword,
+                    onValueChange = {
+                        viewModel.processEvent(
+                            UserAuthIntent.ResetPasswordAuth.ViewEvent.UpdateConfirmPassword(
+                                it
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                hasCPasswordFocused = true
+                            }
+                            isCPasswordFocused = focusState.isFocused
+                        },
+                    placeholder = {
+                        ComposeTextView.TextView(
+                            text = stringResource(Res.string.confirm_password_hint),
+                            textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontSize = 16.sp
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { confirmPasswordVisible = !confirmPasswordVisible },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                painter = if (confirmPasswordVisible) painterResource(Res.drawable.ic_visibility_on) else painterResource(
+                                    Res.drawable.ic_visibility_off
+                                ),
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors().copy(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        errorIndicatorColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    isError = !state.confirmPasswordValid && !isCPasswordFocused && hasCPasswordFocused,
+                    supportingText = {
+                        if (!state.confirmPasswordValid && !isCPasswordFocused && hasCPasswordFocused) {
+                            ComposeTextView.TextView(
+                                text = stringResource(Res.string.both_password_not_matching_alert),
+                                textColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.processEvent(UserAuthIntent.ResetPasswordAuth.ViewEvent.ResetPassword)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = state.confirmPasswordValid && state.passwordValid == PasswordStrengthValidityStatus.VALID,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    ComposeTextView.TitleTextView(
+                        text = stringResource(Res.string.reset_password),
+                        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -240,111 +241,120 @@ fun OTPVerificationScreen(
             )
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 32.dp)
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Box(
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                    .size(32.dp)
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 450.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 32.dp)
             ) {
-                IconButton(
-                    onClick = onGoBack
+                Box(
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.secondaryContainer,
+                        CircleShape
+                    )
+                        .size(32.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.Unspecified
+                    IconButton(
+                        onClick = onGoBack
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_arrow_back),
+                            contentDescription = "Back",
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                ComposeTextView.TitleTextView(
+                    text = stringResource(Res.string.check_your_email)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ComposeTextView.TextView(
+                    text = stringResource(
+                        Res.string.check_your_email_subtitle,
+                        userEmail,
+                        viewModel.getOTPLength()
+                    ),
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OTPVerificationTextField(
+                    otpState,
+                    focusRequesters,
+                    onAction = { action ->
+                        when (action) {
+                            is OTPAction.OnEnterNumber -> {
+                                if (action.number != null) {
+                                    focusRequesters[action.index].freeFocus()
+                                }
+                            }
+
+                            else -> Unit
+                        }
+                        viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.OnAction(action))
+                    },
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.VerifyOTP)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = otpState.isValid,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    ComposeTextView.TitleTextView(
+                        text = stringResource(Res.string.verify_otp),
+                        textColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontSize = 16.sp
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            ComposeTextView.TitleTextView(
-                text = stringResource(Res.string.check_your_email)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ComposeTextView.TextView(
-                text = stringResource(
-                    Res.string.check_your_email_subtitle,
-                    userEmail,
-                    viewModel.getOTPLength()
-                ),
-                fontSize = 14.sp
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OTPVerificationTextField(
-                otpState,
-                focusRequesters,
-                onAction = { action ->
-                    when (action) {
-                        is OTPAction.OnEnterNumber -> {
-                            if (action.number != null) {
-                                focusRequesters[action.index].freeFocus()
-                            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    ComposeTextView.TextView(
+                        text = stringResource(Res.string.not_get_email),
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable {
+                            viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.ResendOTP)
                         }
+                    )
 
-                        else -> Unit
-                    }
-                    viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.OnAction(action))
-                },
-            )
+                    Spacer(Modifier.width(2.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.VerifyOTP)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                enabled = otpState.isValid,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            ) {
-                ComposeTextView.TitleTextView(
-                    text = stringResource(Res.string.verify_otp),
-                    textColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 16.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                ComposeTextView.TextView(
-                    text = stringResource(Res.string.not_get_email),
-                    fontSize = 16.sp,
-                    modifier = Modifier.clickable {
-                        viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.ResendOTP)
-                    }
-                )
-
-                Spacer(Modifier.width(2.dp))
-
-                ComposeTextView.TextView(
-                    text = stringResource(Res.string.resend_email),
-                    textColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontSize = 16.sp,
-                    modifier = Modifier.clickable {
-                        viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.ResendOTP)
-                    }
-                )
+                    ComposeTextView.TextView(
+                        text = stringResource(Res.string.resend_email),
+                        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontSize = 16.sp,
+                        modifier = Modifier.clickable {
+                            viewModel.processEvent(UserAuthIntent.OTPAuth.ViewEvent.ResendOTP)
+                        }
+                    )
+                }
             }
         }
     }
