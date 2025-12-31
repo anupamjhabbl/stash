@@ -5,8 +5,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface StashDataRepository {
     fun getCategoryDataWithItems(loggedUserId: String): Flow<List<StashCategoryWithItem>>
-    suspend fun addStashCategory(categoryName: String, loggedUserId: String)
+
+    suspend fun addStashCategory(categoryId: String?, categoryName: String, loggedUserId: String)
+
     fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem>
+
     suspend fun addStashItem(
         loggedUserId: String,
         stashItemId: String?,
@@ -16,4 +19,8 @@ interface StashDataRepository {
         stashItemRating: Float,
         itemCompletedStatus: String
     )
+
+    suspend fun deleteStashCategory(categoryId: String)
+
+    suspend fun deleteStashItem(itemId: String)
 }

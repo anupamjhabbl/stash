@@ -52,4 +52,6 @@
     <string name="logout">Logout</string>
     <string name="profile">Profile</string>
     <string name="logout_failure_message">Logout failed due to some error.</string>
+    <string name="deletion_category_failure_message">Something went wrong while deleting the category.</string>
+    <string name="deletion_item_failure_message">Something went wrong while deleting the item.</string>
 </resources>

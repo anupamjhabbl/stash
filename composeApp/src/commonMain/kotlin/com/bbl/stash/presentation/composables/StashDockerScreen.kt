@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,10 +52,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.bbl.stash.common.ObserveAsEventsLatest
+import com.bbl.stash.common.SnackbarController
+import com.bbl.stash.common.SnackbarEvent
 import com.bbl.stash.domain.model.dto.StashItem
 import com.bbl.stash.domain.model.entity.StashItemCategoryStatus
+import com.bbl.stash.presentation.viewmodels.StashDockerScreenEffect
 import com.bbl.stash.presentation.viewmodels.StashDockerViewModel
 import com.bbl.stash.presentation.viewmodels.koinViewModel
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import stash.composeapp.generated.resources.Res
@@ -62,8 +69,10 @@ import stash.composeapp.generated.resources.add_new_item
 import stash.composeapp.generated.resources.app_name
 import stash.composeapp.generated.resources.arrow_down
 import stash.composeapp.generated.resources.bg_gradient
+import stash.composeapp.generated.resources.deletion_item_failure_message
 import stash.composeapp.generated.resources.ic_add
 import stash.composeapp.generated.resources.ic_arrow_back
+import stash.composeapp.generated.resources.ic_delete
 import stash.composeapp.generated.resources.ic_logo
 import stash.composeapp.generated.resources.ic_star
 import stash.composeapp.generated.resources.item
@@ -80,13 +89,31 @@ fun StashDockerScreen(
     onGoBack: () -> Unit
 ) {
     val stashDockerViewModel = koinViewModel<StashDockerViewModel>()
-    var selectedItem by remember { mutableStateOf<StashItem?>(null) }
+    var selectedItem = remember<StashItem?> { null }
     val stashScreenState by stashDockerViewModel.stashScreenState.collectAsStateWithLifecycle()
     val painter = painterResource(Res.drawable.bg_gradient)
+    val deletionFailureMessage = stringResource(Res.string.deletion_item_failure_message)
     var isDialogVisible by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         stashDockerViewModel.init(stashCategoryId)
+    }
+
+    ObserveAsEventsLatest(
+        flow = stashDockerViewModel.stashDockerScreenEffect
+    ) { viewEffect ->
+        when (viewEffect) {
+            StashDockerScreenEffect.DeleteFailure -> {
+                scope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = deletionFailureMessage
+                        )
+                    )
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -190,12 +217,13 @@ fun StashDockerScreen(
                                 onItemClick = {
                                     selectedItem = stashItem
                                     isDialogVisible = true
+                                },
+                                onCompleteStatusUpdate = { stashItemCompletedStatus, stashItem ->
+                                    stashDockerViewModel.addStashItem(stashItem.stashItemId, stashItem.stashItemName, stashItem.stashItemUrl, stashItem.stashItemRating, stashItemCompletedStatus)
                                 }
-                            ) { stashItemCompletedStatus, stashItem ->
-                                stashDockerViewModel.addStashItem(stashItem.stashItemId, stashItem.stashItemName, stashItem.stashItemUrl, stashItem.stashItemRating, stashItemCompletedStatus)
+                            ) { itemId ->
+                                stashDockerViewModel.deleteStashItem(itemId)
                             }
-
-                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }
@@ -208,68 +236,102 @@ fun StashDockerScreen(
 fun StashItemView(
     stashItem: StashItem,
     onItemClick: (stashItem: StashItem) -> Unit,
-    onCompleteStatusUpdate: (String, StashItem) -> Unit
+    onCompleteStatusUpdate: (String, StashItem) -> Unit,
+    onItemDelete: (String) -> Unit
 ) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.tertiary, shape = MaterialTheme.shapes.medium)
-            .background(color = Color.White, shape = MaterialTheme.shapes.medium)
-            .padding(12.dp, 10.dp)
-            .clickable {
-                onItemClick(stashItem)
-            }
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.tertiary,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .background(color = Color.White, shape = MaterialTheme.shapes.medium)
+                .padding(12.dp, 10.dp)
+                .clickable {
+                    onItemClick(stashItem)
+                }
         ) {
-            AsyncImage(
-                model = stashItem.stashItemUrl,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Fit,
-                contentDescription = "Item image",
-                placeholder = painterResource(Res.drawable.ic_logo),
-                error = painterResource(Res.drawable.ic_logo),
-                fallback = painterResource(Res.drawable.ic_logo)
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(90.dp),
-                verticalArrangement = Arrangement.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stashItem.stashItemName,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                AsyncImage(
+                    model = stashItem.stashItemUrl,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Fit,
+                    contentDescription = "Item image",
+                    placeholder = painterResource(Res.drawable.ic_logo),
+                    error = painterResource(Res.drawable.ic_logo),
+                    fallback = painterResource(Res.drawable.ic_logo)
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.width(12.dp))
 
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(90.dp),
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    RatingView(
-                        modifier = Modifier.weight(1f),
-                        stashItemRating = stashItem.stashItemRating
+                    Text(
+                        text = stashItem.stashItemName,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
 
-                    DropDownView(
-                        stashItem = stashItem,
-                        stashItemCompleted = stashItem.stashItemCompleted,
-                        updateCompletedStatus = onCompleteStatusUpdate
-                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RatingView(
+                            modifier = Modifier.weight(1f),
+                            stashItemRating = stashItem.stashItemRating
+                        )
+
+                        DropDownView(
+                            stashItem = stashItem,
+                            stashItemCompleted = stashItem.stashItemCompleted,
+                            updateCompletedStatus = onCompleteStatusUpdate
+                        )
+                    }
                 }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .padding(end = 32.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .background(Color.Red, shape = CircleShape)
+                    .clickable {
+                        onItemDelete(stashItem.stashItemId)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(16.dp),
+                    painter = painterResource(Res.drawable.ic_delete),
+                    contentDescription = "Delete",
+                    tint = Color.White
+                )
             }
         }
     }

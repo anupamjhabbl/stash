@@ -11,8 +11,8 @@ class StashDataUseCase(
         return stashDataRepository.getCategoryDataWithItems(loggedUserId)
     }
 
-    suspend fun addStashCategory(categoryName: String, loggedUserId: String) {
-        stashDataRepository.addStashCategory(categoryName, loggedUserId)
+    suspend fun addStashCategory(categoryId: String?, categoryName: String, loggedUserId: String) {
+        stashDataRepository.addStashCategory(categoryId, categoryName, loggedUserId)
     }
 
     fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem>{
@@ -38,4 +38,14 @@ class StashDataUseCase(
             itemCompletedStatus
         )
     }
+
+    suspend fun deleteStashCategory(categoryId: String) {
+        stashDataRepository.deleteStashCategory(categoryId)
+    }
+
+    suspend fun deleteStashItem(itemId: String) {
+        stashDataRepository.deleteStashItem(itemId)
+    }
 }
+
+// TODO: for every deletion send a request

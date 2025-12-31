@@ -62,12 +62,12 @@ class HomeStashScreenViewModel(
         }
     }
 
-    fun addCategoryItem(categoryName: String) {
+    fun addCategoryItem(categoryId: String?, categoryName: String) {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
             _stashScreenState.update { it.copy(isLoading = true) }
             try {
-                stashDataUseCase.addStashCategory(categoryName, loggedUserId)
+                stashDataUseCase.addStashCategory(categoryId, categoryName, loggedUserId)
             } finally {
                 _stashScreenState.update { it.copy(isLoading = false) }
             }
@@ -101,6 +101,17 @@ class HomeStashScreenViewModel(
             _stashScreenState.update { it.copy(isLoading = false) }
         }
     }
+
+    fun deleteCategory(categoryId: String) {
+        viewModelScope.launch {
+            val result = SafeIOUtil.safeCall {
+                stashDataUseCase.deleteStashCategory(categoryId)
+            }
+            result.onFailure {
+                _homeStashScreenEffect.emit(HomeStashScreenEffect.DeleteFailure)
+            }
+        }
+    }
 }
 
 data class HomeStashScreenState(
@@ -111,4 +122,5 @@ data class HomeStashScreenState(
 sealed interface HomeStashScreenEffect {
     data object LogOutUser: HomeStashScreenEffect
     data object LogOutFailure: HomeStashScreenEffect
+    data object DeleteFailure: HomeStashScreenEffect
 }

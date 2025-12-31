@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,6 +56,7 @@ import coil3.compose.AsyncImage
 import com.bbl.stash.common.ObserveAsEventsLatest
 import com.bbl.stash.common.SnackbarController
 import com.bbl.stash.common.SnackbarEvent
+import com.bbl.stash.domain.model.dto.StashCategory
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
 import com.bbl.stash.presentation.viewmodels.HomeStashScreenEffect
 import com.bbl.stash.presentation.viewmodels.HomeStashScreenViewModel
@@ -70,10 +72,13 @@ import stash.composeapp.generated.resources.arrow_up
 import stash.composeapp.generated.resources.bg_gradient
 import stash.composeapp.generated.resources.category_adder_dialog_title
 import stash.composeapp.generated.resources.category_name
+import stash.composeapp.generated.resources.deletion_category_failure_message
 import stash.composeapp.generated.resources.home_empty_page_action
 import stash.composeapp.generated.resources.home_empty_page_description
 import stash.composeapp.generated.resources.home_empty_page_title
 import stash.composeapp.generated.resources.ic_add
+import stash.composeapp.generated.resources.ic_delete
+import stash.composeapp.generated.resources.ic_edit
 import stash.composeapp.generated.resources.ic_logo
 import stash.composeapp.generated.resources.logout_failure_message
 
@@ -84,6 +89,8 @@ fun HomeStashScreen(
     onLogOut: () -> Unit
 ) {
     val logOutFailureMessage = stringResource(Res.string.logout_failure_message)
+    var selectedCategory = remember<StashCategory?> { null }
+    val deletionFailureMessage = stringResource(Res.string.deletion_category_failure_message)
     val viewModel = koinViewModel<HomeStashScreenViewModel>()
     val scope = rememberCoroutineScope()
     val stashScreenState by viewModel.stashScreenState.collectAsStateWithLifecycle()
@@ -105,9 +112,20 @@ fun HomeStashScreen(
                     )
                 }
             }
+
             HomeStashScreenEffect.LogOutUser -> {
                 stopSync()
                 onLogOut()
+            }
+
+            HomeStashScreenEffect.DeleteFailure -> {
+                scope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = deletionFailureMessage
+                        )
+                    )
+                }
             }
         }
     }
@@ -186,12 +204,15 @@ fun HomeStashScreen(
                 ) {
                     if (isDialogVisible) {
                         CategoryAdderDialog(
+                            categoryName = selectedCategory?.categoryName ?: "",
                             onCategoryAdd = { categoryName ->
-                                viewModel.addCategoryItem(categoryName)
+                                viewModel.addCategoryItem(selectedCategory?.categoryId, categoryName)
                                 isDialogVisible = false
+                                selectedCategory = null
                             }
                         ) {
                             isDialogVisible = false
+                            selectedCategory = null
                         }
                     }
 
@@ -223,13 +244,21 @@ fun HomeStashScreen(
                                 Column {
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    StashCategoryItem(stashCategory, onItemClick)
-
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    StashCategoryItem(
+                                        stashCategory,
+                                        onItemClick,
+                                        { itemId ->
+                                            itemId?.let {
+                                                viewModel.deleteCategory(it)
+                                            }
+                                        }
+                                    ) {
+                                        selectedCategory = stashCategory.stashCategory
+                                        isDialogVisible = true
+                                    }
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -240,7 +269,9 @@ fun HomeStashScreen(
 @Composable
 fun StashCategoryItem(
     stashCategory: StashCategoryWithItem,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    onItemDelete: (String?) -> Unit,
+    onCategoryEdit: (String?) -> Unit
 ) {
     var itemExpanded by remember { mutableStateOf(false) }
     val painterResource = if (itemExpanded) {
@@ -249,82 +280,138 @@ fun StashCategoryItem(
         painterResource(Res.drawable.arrow_down)
     }
 
-    Column(
-        Modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.tertiary, shape = MaterialTheme.shapes.medium)
-            .background(color = Color.White, shape = MaterialTheme.shapes.medium)
-            .clickable {
-                stashCategory.stashCategory?.let {
-                    onItemClick(it.categoryId)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.tertiary,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .background(color = Color.White, shape = MaterialTheme.shapes.medium)
+                .clickable {
+                    stashCategory.stashCategory?.let {
+                        onItemClick(it.categoryId)
+                    }
+                }
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stashCategory.stashCategory?.categoryName ?: "",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Icon(
+                    painter = painterResource,
+                    contentDescription = "Expand",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            itemExpanded = !itemExpanded
+                        }
+                )
+            }
+
+            if (itemExpanded) {
+                Column {
+                    Spacer(Modifier.height(12.dp))
+
+                    HorizontalDivider(thickness = 2.dp)
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        stashCategory.stashItems.take(3).forEach { item ->
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .weight(1f),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                AsyncImage(
+                                    model = item.stashItemUrl,
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .clip(RoundedCornerShape(6.dp)),
+                                    contentScale = ContentScale.Fit,
+                                    contentDescription = "Item image",
+                                    placeholder = painterResource(Res.drawable.ic_logo),
+                                    error = painterResource(Res.drawable.ic_logo),
+                                    fallback = painterResource(Res.drawable.ic_logo)
+                                )
+
+                                Spacer(Modifier.height(4.dp))
+
+                                Text(
+                                    text = item.stashItemName,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
                 }
             }
-            .padding(16.dp, 8.dp)
-
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stashCategory.stashCategory?.categoryName ?: "",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Icon(
-                painter = painterResource,
-                contentDescription = "Expand",
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        itemExpanded = !itemExpanded
-                    }
-            )
         }
 
         if (itemExpanded) {
-            Column {
-                Spacer(Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .padding(end = 32.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Row {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(Color.Blue, shape = CircleShape)
+                            .clickable {
+                                onCategoryEdit(stashCategory.stashCategory?.categoryId)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            painter = painterResource(Res.drawable.ic_edit),
+                            contentDescription = "Edit",
+                            tint = Color.White
+                        )
+                    }
 
-                HorizontalDivider(thickness = 2.dp)
+                    Spacer(Modifier.width(8.dp))
 
-                Spacer(Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    stashCategory.stashItems.take(3).forEach { item ->
-                        Column(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            AsyncImage(
-                                model = item.stashItemUrl,
-                                modifier = Modifier
-                                    .size(70.dp)
-                                    .clip(RoundedCornerShape(6.dp)),
-                                contentScale = ContentScale.Fit,
-                                contentDescription = "Item image",
-                                placeholder = painterResource(Res.drawable.ic_logo),
-                                error = painterResource(Res.drawable.ic_logo),
-                                fallback = painterResource(Res.drawable.ic_logo)
-                            )
-
-                            Spacer(Modifier.height(4.dp))
-
-                            Text(
-                                text = item.stashItemName,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(Color.Red, shape = CircleShape)
+                            .clickable {
+                                onItemDelete(stashCategory.stashCategory?.categoryId)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = "Delete",
+                            tint = Color.White
+                        )
                     }
                 }
             }
@@ -334,10 +421,11 @@ fun StashCategoryItem(
 
 @Composable
 private fun CategoryAdderDialog(
+    categoryName: String,
     onCategoryAdd: (String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    var textValue by remember { mutableStateOf("") }
+    var textValue by remember { mutableStateOf(categoryName) }
 
     Dialog(
         onDismissRequest = onDismissRequest

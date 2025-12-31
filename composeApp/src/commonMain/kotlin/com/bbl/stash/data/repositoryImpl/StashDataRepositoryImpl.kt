@@ -18,15 +18,23 @@ class StashDataRepositoryImpl(
         return stashDao.getCategoriesWithItems(loggedUserId).map { stashCategoryList ->
             stashCategoryList.map { stashCategory ->
                 stashCategory.mapToDto()
-            }
+            }.reversed()
         }
     }
 
-    override suspend fun addStashCategory(categoryName: String, loggedUserId: String) {
-        val stashCategory = StashCategory(
-            userId = loggedUserId,
-            categoryName = categoryName
-        )
+    override suspend fun addStashCategory(categoryId: String?, categoryName: String, loggedUserId: String) {
+        val stashCategory = if (categoryId == null) {
+            StashCategory(
+                userId = loggedUserId,
+                categoryName = categoryName
+            )
+        } else {
+            StashCategory(
+                categoryId = categoryId,
+                userId = loggedUserId,
+                categoryName = categoryName
+            )
+        }
         stashDao.insertStashCategory(stashCategory)
         stashDao.insertStashCategorySync(
             StashCategorySync(
@@ -39,7 +47,8 @@ class StashDataRepositoryImpl(
     override fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem> {
         val stashCategoryWithItem = stashDao.getCategoryWithItems(stashCategoryId, loggedUserId)
         return stashCategoryWithItem.map { stashCategory ->
-            stashCategory.mapToDto()
+            val dtoStashCategoryWithItem = stashCategory.mapToDto()
+            dtoStashCategoryWithItem.copy(stashItems = dtoStashCategoryWithItem.stashItems.reversed())
         }
     }
 
@@ -79,5 +88,14 @@ class StashDataRepositoryImpl(
                 syncStatus = SyncStatus.PENDING.status
             )
         )
+    }
+
+    override suspend fun deleteStashCategory(categoryId: String) {
+        stashDao.deleteStashCategory(categoryId)
+    }
+
+    override suspend fun deleteStashItem(itemId: String) {
+        stashDao.deleteStashItem(itemId)
+
     }
 }

@@ -61,4 +61,16 @@ interface StashDao {
         WHERE userId = :loggedUserId
         """)
     suspend fun getItemsWithSyncData(loggedUserId: String): List<StashItemWithSync>
+
+    @Query("""
+        DELETE FROM stash_category
+        WHERE categoryId = :categoryId
+        """)
+    suspend fun deleteStashCategory(categoryId: String)
+
+    @Query("""
+        DELETE FROM stash_item
+        WHERE stashItemId = :itemId
+        """)
+    suspend fun deleteStashItem(itemId: String)
 }
