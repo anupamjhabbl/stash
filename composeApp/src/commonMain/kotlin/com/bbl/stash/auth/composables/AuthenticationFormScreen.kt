@@ -112,7 +112,6 @@ fun AuthenticationFormScreen(
                                 }
                             },
                             onForgotPasswordClick = onForgotPasswordClick,
-                            onAppleLoginClick = {},
                             onGoogleLoginClick = {},
                             goToHomeScreen = goToHomeScreen,
                             startSync = startSync
@@ -126,7 +125,6 @@ fun AuthenticationFormScreen(
                                     pagerState.scrollToPage(logInPageIndex)
                                 }
                             },
-                            onAppleLoginClick = {},
                             onGoogleLoginClick = {},
                             onGoToOtpVerificationScreen = onGoToOtpVerificationScreen
                         )

@@ -62,12 +62,10 @@ import stash.composeapp.generated.resources.email
 import stash.composeapp.generated.resources.email_hint
 import stash.composeapp.generated.resources.forgot_password
 import stash.composeapp.generated.resources.generic_error
-import stash.composeapp.generated.resources.ic_apple
 import stash.composeapp.generated.resources.ic_google
 import stash.composeapp.generated.resources.ic_visibility_off
 import stash.composeapp.generated.resources.ic_visibility_on
 import stash.composeapp.generated.resources.invalid_email_alert
-import stash.composeapp.generated.resources.login_with_apple
 import stash.composeapp.generated.resources.login_with_google
 import stash.composeapp.generated.resources.password
 import stash.composeapp.generated.resources.password_hint
@@ -77,7 +75,6 @@ import stash.composeapp.generated.resources.sign_up
 fun AuthLoginScreen(
     onSignUpClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
-    onAppleLoginClick: () -> Unit,
     onGoogleLoginClick: () -> Unit,
     goToHomeScreen: () -> Unit,
     startSync: () -> Unit
@@ -265,7 +262,7 @@ fun AuthLoginScreen(
                     .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer
                 ),
                 enabled = state.isValid
@@ -313,29 +310,6 @@ fun AuthLoginScreen(
 
                 ComposeTextView.TextView(
                     text = stringResource(Res.string.login_with_google),
-                    fontSize = 16.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedButton(
-                onClick = onAppleLoginClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_apple),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                ComposeTextView.TextView(
-                    text = stringResource(Res.string.login_with_apple),
                     fontSize = 16.sp
                 )
             }
