@@ -11,4 +11,5 @@ plugins {
     alias(libs.plugins.androidx.room) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktorfit) apply false
+    alias(libs.plugins.google.services) apply false
 }

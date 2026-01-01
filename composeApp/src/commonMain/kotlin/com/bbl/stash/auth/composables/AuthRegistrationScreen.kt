@@ -45,10 +45,14 @@ import com.bbl.stash.auth.entity.PasswordStrengthValidityStatus
 import com.bbl.stash.auth.viewModels.UseRegistrationViewModel
 import com.bbl.stash.auth.viewModels.UserAuthIntent
 import com.bbl.stash.common.Constants
+import com.bbl.stash.common.ObserveAsEvents
 import com.bbl.stash.common.ObserveAsEventsLatest
 import com.bbl.stash.common.RequestStatus
 import com.bbl.stash.common.SnackbarController
 import com.bbl.stash.common.SnackbarEvent
+import com.bbl.stash.common.StartActivityForResultEvent
+import com.bbl.stash.common.StartActivityForResultEventController
+import com.bbl.stash.common.StartActivityIntentType
 import com.bbl.stash.presentation.viewmodels.koinViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -75,7 +79,7 @@ import stash.composeapp.generated.resources.username_hint
 @Composable
 fun AuthRegistrationScreen(
     onLoginClick: () -> Unit,
-    onGoogleLoginClick:  () -> Unit,
+    goToHomeScreen:  () -> Unit,
     onGoToOtpVerificationScreen: (email: String, origin: String, userId: String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -129,6 +133,18 @@ fun AuthRegistrationScreen(
             }
 
             RequestStatus.Idle -> { isLoading = false }
+        }
+    }
+
+    ObserveAsEvents(
+        flow = StartActivityForResultEventController.resultChannel
+    ) {
+        if (
+            it.type == StartActivityIntentType.GOOGLE_AUTH
+            && it.result is Boolean
+            && it.result
+        ) {
+            goToHomeScreen()
         }
     }
 
@@ -339,7 +355,15 @@ fun AuthRegistrationScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
-                onClick = onGoogleLoginClick,
+                onClick = {
+                    scope.launch {
+                        StartActivityForResultEventController.sendEvent(
+                            StartActivityForResultEvent(
+                                type = StartActivityIntentType.GOOGLE_AUTH,
+                            )
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

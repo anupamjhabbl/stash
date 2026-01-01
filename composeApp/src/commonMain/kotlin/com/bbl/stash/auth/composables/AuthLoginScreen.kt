@@ -46,10 +46,14 @@ import androidx.compose.ui.unit.sp
 import com.bbl.stash.auth.viewModels.UserAuthIntent
 import com.bbl.stash.auth.viewModels.UserLoginAuthViewModel
 import com.bbl.stash.common.Constants
+import com.bbl.stash.common.ObserveAsEvents
 import com.bbl.stash.common.ObserveAsEventsLatest
 import com.bbl.stash.common.RequestStatus
 import com.bbl.stash.common.SnackbarController
 import com.bbl.stash.common.SnackbarEvent
+import com.bbl.stash.common.StartActivityForResultEvent
+import com.bbl.stash.common.StartActivityForResultEventController
+import com.bbl.stash.common.StartActivityIntentType
 import com.bbl.stash.presentation.viewmodels.koinViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -75,7 +79,6 @@ import stash.composeapp.generated.resources.sign_up
 fun AuthLoginScreen(
     onSignUpClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
-    onGoogleLoginClick: () -> Unit,
     goToHomeScreen: () -> Unit,
     startSync: () -> Unit
 ) {
@@ -127,7 +130,18 @@ fun AuthLoginScreen(
                 goToHomeScreen()
             }
         }
+    }
 
+    ObserveAsEvents(
+        flow = StartActivityForResultEventController.resultChannel
+    ) {
+        if (
+            it.type == StartActivityIntentType.GOOGLE_AUTH
+            && it.result is Boolean
+            && it.result
+        ) {
+            goToHomeScreen()
+        }
     }
 
     if (isLoading) {
@@ -292,7 +306,15 @@ fun AuthLoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
-                onClick = onGoogleLoginClick,
+                onClick = {
+                    scope.launch {
+                        StartActivityForResultEventController.sendEvent(
+                            StartActivityForResultEvent(
+                                type = StartActivityIntentType.GOOGLE_AUTH,
+                            )
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

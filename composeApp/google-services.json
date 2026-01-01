@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "265708510432",
+    "project_id": "stash-bbl",
+    "storage_bucket": "stash-bbl.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265708510432:android:e9a4a4e35a4fe3aa6e8485",
+        "android_client_info": {
+          "package_name": "com.bbl.stash"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265708510432-ig4jplavfnr28m3ih2728n26rtrb9d5e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bbl.stash",
+            "certificate_hash": "3fd118465060a2c86ea1401eb0d2dec45f6b925c"
+          }
+        },
+        {
+          "client_id": "265708510432-aosu7q3ptm6j39q4hsqrno2i51b4kv1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHANeZP2i1b91YfURS6Kc2qaJCE1lDln8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265708510432-aosu7q3ptm6j39q4hsqrno2i51b4kv1a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

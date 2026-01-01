@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktorfit)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -44,6 +45,13 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.ktor.client.android)
             implementation(libs.gson.impl)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.auth)
+            implementation(libs.firebase.credentials)
+            implementation(libs.firebase.credential.play.services)
+            implementation(libs.identity.googleid)
+            implementation(libs.google.play.services.auth)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
