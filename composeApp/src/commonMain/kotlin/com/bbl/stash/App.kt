@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
 import com.bbl.stash.common.ObserveAsEvents
-import com.bbl.stash.common.SnackbarController
+import com.bbl.stash.common.controllers.SnackbarController
 import com.bbl.stash.presentation.navigation.screen.NavigationRoot
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext

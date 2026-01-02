@@ -54,8 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.bbl.stash.common.ObserveAsEventsLatest
-import com.bbl.stash.common.SnackbarController
-import com.bbl.stash.common.SnackbarEvent
+import com.bbl.stash.common.controllers.SnackbarController
+import com.bbl.stash.common.controllers.SnackbarEvent
 import com.bbl.stash.domain.model.dto.StashCategory
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
 import com.bbl.stash.presentation.viewmodels.HomeStashScreenEffect

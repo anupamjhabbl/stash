@@ -8,8 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import com.bbl.stash.common.ObserveAsEvents
-import com.bbl.stash.common.StartActivityForResultEventController
-import com.bbl.stash.common.StartActivityIntentType
+import com.bbl.stash.common.controllers.StartActivityForResultEventController
+import com.bbl.stash.common.controllers.StartActivityIntentType
 import com.bbl.stash.common.auth.GoogleAuthentication
 import com.bbl.stash.sync.DataSyncWorker.Companion.initWorker
 import com.bbl.stash.sync.DataSyncWorker.Companion.stopWorker

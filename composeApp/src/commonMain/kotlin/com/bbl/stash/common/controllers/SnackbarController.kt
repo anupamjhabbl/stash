@@ -1,4 +1,4 @@
-package com.bbl.stash.common
+package com.bbl.stash.common.controllers
 
 import androidx.compose.material3.SnackbarDuration
 import kotlinx.coroutines.channels.Channel

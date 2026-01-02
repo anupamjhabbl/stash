@@ -42,8 +42,8 @@ import com.bbl.stash.auth.viewModels.UserAuthIntent
 import com.bbl.stash.common.Constants
 import com.bbl.stash.common.ObserveAsEventsLatest
 import com.bbl.stash.common.RequestStatus
-import com.bbl.stash.common.SnackbarController
-import com.bbl.stash.common.SnackbarEvent
+import com.bbl.stash.common.controllers.SnackbarController
+import com.bbl.stash.common.controllers.SnackbarEvent
 import com.bbl.stash.presentation.viewmodels.koinViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource

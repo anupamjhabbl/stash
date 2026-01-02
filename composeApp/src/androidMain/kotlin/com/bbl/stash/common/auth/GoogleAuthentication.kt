@@ -6,9 +6,9 @@ import androidx.activity.result.ActivityResult
 import com.bbl.stash.R
 import com.bbl.stash.auth.entity.User
 import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
-import com.bbl.stash.common.StartActivityForResultEventController
-import com.bbl.stash.common.StartActivityForResultEventResult
-import com.bbl.stash.common.StartActivityIntentType
+import com.bbl.stash.common.controllers.StartActivityForResultEventController
+import com.bbl.stash.common.controllers.StartActivityForResultEventResult
+import com.bbl.stash.common.controllers.StartActivityIntentType
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

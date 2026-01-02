@@ -1,4 +1,4 @@
-package com.bbl.stash.common
+package com.bbl.stash.common.controllers
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
