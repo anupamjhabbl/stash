@@ -48,12 +48,14 @@ import com.bbl.stash.auth.viewModels.UserLoginAuthViewModel
 import com.bbl.stash.common.Constants
 import com.bbl.stash.common.ObserveAsEvents
 import com.bbl.stash.common.ObserveAsEventsLatest
+import com.bbl.stash.common.Platform
 import com.bbl.stash.common.RequestStatus
 import com.bbl.stash.common.controllers.SnackbarController
 import com.bbl.stash.common.controllers.SnackbarEvent
 import com.bbl.stash.common.controllers.StartActivityForResultEvent
 import com.bbl.stash.common.controllers.StartActivityForResultEventController
 import com.bbl.stash.common.controllers.StartActivityIntentType
+import com.bbl.stash.common.getPlatform
 import com.bbl.stash.presentation.viewmodels.koinViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -290,53 +292,61 @@ fun AuthLoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.height(1.dp).weight(1f).background(MaterialTheme.colorScheme.onTertiaryContainer))
-                ComposeTextView.TextView(
-                    stringResource(Res.string.auth_or),
-                    textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.height(1.dp).weight(1f).background(MaterialTheme.colorScheme.onTertiaryContainer))
-            }
+            if (getPlatform() == Platform.ANDROID || getPlatform() == Platform.APPLE) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.height(1.dp).weight(1f).background(MaterialTheme.colorScheme.onTertiaryContainer))
 
-            Spacer(modifier = Modifier.height(24.dp))
+                    ComposeTextView.TextView(
+                        stringResource(Res.string.auth_or),
+                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        fontSize = 16.sp
+                    )
 
-            OutlinedButton(
-                onClick = {
-                    scope.launch {
-                        StartActivityForResultEventController.sendEvent(
-                            StartActivityForResultEvent(
-                                type = StartActivityIntentType.GOOGLE_AUTH,
+                    Spacer(modifier = Modifier.height(1.dp).weight(1f).background(MaterialTheme.colorScheme.onTertiaryContainer))
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            StartActivityForResultEventController.sendEvent(
+                                StartActivityForResultEvent(
+                                    type = StartActivityIntentType.GOOGLE_AUTH,
+                                )
                             )
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_google),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(24.dp)
-                )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_google),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(24.dp)
+                    )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                ComposeTextView.TextView(
-                    text = stringResource(Res.string.login_with_google),
-                    fontSize = 16.sp
-                )
+                    ComposeTextView.TextView(
+                        text = stringResource(Res.string.login_with_google),
+                        fontSize = 16.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
