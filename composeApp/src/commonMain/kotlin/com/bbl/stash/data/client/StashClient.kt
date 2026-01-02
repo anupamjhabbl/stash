@@ -1,8 +1,11 @@
 package com.bbl.stash.data.client
 
 import com.bbl.stash.data.client.model.StashCategoryBatch
+import com.bbl.stash.data.client.model.StashDeleteCategories
+import com.bbl.stash.data.client.model.StashDeleteItems
 import com.bbl.stash.data.client.model.StashItemBatch
 import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.POST
 
@@ -18,4 +21,10 @@ interface StashClient {
 
     @GET("api/items/batch")
     suspend fun getItems(): StashItemBatch
+
+    @DELETE("api/categories/batch")
+    suspend fun deleteCategories(@Body stashDeleteCategories: StashDeleteCategories)
+
+    @DELETE("api/items/batch")
+    suspend fun deleteItems(@Body stashDeleteItems: StashDeleteItems)
 }

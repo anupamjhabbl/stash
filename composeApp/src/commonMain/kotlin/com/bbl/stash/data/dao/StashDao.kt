@@ -7,6 +7,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.bbl.stash.domain.model.entity.CategoryWithItems
 import com.bbl.stash.domain.model.entity.CategoryWithSync
+import com.bbl.stash.domain.model.entity.DeletedCategory
+import com.bbl.stash.domain.model.entity.DeletedItem
 import com.bbl.stash.domain.model.entity.StashCategory
 import com.bbl.stash.domain.model.entity.StashCategorySync
 import com.bbl.stash.domain.model.entity.StashItem
@@ -73,4 +75,22 @@ interface StashDao {
         WHERE stashItemId = :itemId
         """)
     suspend fun deleteStashItem(itemId: String)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertDeletedCategory(deletedCategory: DeletedCategory)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertDeletedItem(deletedItem: DeletedItem)
+
+    @Query("SELECT * FROM deleted_category")
+    suspend fun getDeletedCategory(): List<DeletedCategory>
+
+    @Query("SELECT * FROM deleted_item")
+    suspend fun getDeletedItem(): List<DeletedItem>
+
+    @Query("DELETE FROM deleted_category")
+    suspend fun clearDeletedCategory()
+
+    @Query("DELETE FROM deleted_item")
+    suspend fun clearDeletedItem()
 }

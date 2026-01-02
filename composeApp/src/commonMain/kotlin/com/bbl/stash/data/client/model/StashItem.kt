@@ -13,3 +13,8 @@ data class StashItem(
 data class StashItemBatch(
     val stashItemList: List<com.bbl.stash.data.client.model.StashItem>
 )
+
+@Serializable
+data class StashDeleteItems(
+    val deleteItemList: List<String>
+)

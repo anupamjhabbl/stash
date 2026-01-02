@@ -47,5 +47,3 @@ class StashDataUseCase(
         stashDataRepository.deleteStashItem(itemId)
     }
 }
-
-// TODO: for every deletion send a request

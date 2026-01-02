@@ -3,6 +3,8 @@ package com.bbl.stash.data.repositoryImpl
 import com.bbl.stash.data.dao.StashDao
 import com.bbl.stash.domain.model.dto.EntityToDtoMapper.mapToDto
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
+import com.bbl.stash.domain.model.entity.DeletedCategory
+import com.bbl.stash.domain.model.entity.DeletedItem
 import com.bbl.stash.domain.model.entity.StashCategory
 import com.bbl.stash.domain.model.entity.StashCategorySync
 import com.bbl.stash.domain.model.entity.StashItemSync
@@ -92,10 +94,11 @@ class StashDataRepositoryImpl(
 
     override suspend fun deleteStashCategory(categoryId: String) {
         stashDao.deleteStashCategory(categoryId)
+        stashDao.insertDeletedCategory(DeletedCategory(categoryId))
     }
 
     override suspend fun deleteStashItem(itemId: String) {
         stashDao.deleteStashItem(itemId)
-
+        stashDao.insertDeletedItem(DeletedItem(itemId))
     }
 }

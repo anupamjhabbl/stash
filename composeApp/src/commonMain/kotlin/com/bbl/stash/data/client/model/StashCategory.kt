@@ -13,3 +13,8 @@ data class StashCategory(
 data class StashCategoryBatch(
     val stashCategoryList: List<com.bbl.stash.data.client.model.StashCategory>,
 )
+
+@Serializable
+data class StashDeleteCategories(
+    val deleteCategoryList: List<String>
+)

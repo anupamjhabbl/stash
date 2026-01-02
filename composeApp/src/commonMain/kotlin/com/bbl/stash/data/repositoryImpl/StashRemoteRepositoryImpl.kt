@@ -4,6 +4,8 @@ import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
 import com.bbl.stash.data.client.StashClient
 import com.bbl.stash.data.client.model.StashCategory
 import com.bbl.stash.data.client.model.StashCategoryBatch
+import com.bbl.stash.data.client.model.StashDeleteCategories
+import com.bbl.stash.data.client.model.StashDeleteItems
 import com.bbl.stash.data.client.model.StashItem
 import com.bbl.stash.data.client.model.StashItemBatch
 import com.bbl.stash.data.dao.StashDao
@@ -178,5 +180,25 @@ class StashRemoteRepositoryImpl(
                 )
             }
         )
+    }
+
+    override suspend fun deleteCategoryToRemote() {
+        val categoriesToDelete = stashDao.getDeletedCategory()
+        stashClient.deleteCategories(
+            StashDeleteCategories(
+                categoriesToDelete.map { it.categoryId }
+            )
+        )
+        stashDao.clearDeletedCategory()
+    }
+
+    override suspend fun deleteItemToRemote() {
+        val itemsToDelete = stashDao.getDeletedItem()
+        stashClient.deleteItems(
+            StashDeleteItems(
+                itemsToDelete.map { it.itemId }
+            )
+        )
+        stashDao.clearDeletedItem()
     }
 }
