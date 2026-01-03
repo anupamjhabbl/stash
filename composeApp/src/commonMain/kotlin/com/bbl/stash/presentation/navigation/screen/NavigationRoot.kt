@@ -90,6 +90,7 @@ fun NavigationRoot(
             ) {
                 HomeStashScreen(
                     onItemClick = { item ->
+                        navBackStack.removeAll { it is StashRoutes.DockerScreen }
                         navBackStack.add(StashRoutes.DockerScreen(item))
                     },
                     stopSync = stopSync,

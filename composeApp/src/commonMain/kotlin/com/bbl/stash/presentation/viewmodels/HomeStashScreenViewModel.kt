@@ -17,8 +17,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -41,17 +39,14 @@ class HomeStashScreenViewModel(
     private fun getStashData() {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
-            stashDataUseCase.getCategoryDataWithItems(loggedUserId).onStart {
-                    _stashScreenState.update {
-                        it.copy(isLoading = true)
-                    }
-                }
-                .catch {
-                    _stashScreenState.update {
-                        it.copy(isLoading = false)
-                    }
-                }
-                .collect { list ->
+            _stashScreenState.update {
+                it.copy(isLoading = true)
+            }
+            val stashCategoryWithItemResult = SafeIOUtil.safeCall {
+                stashDataUseCase.getCategoryDataWithItems(loggedUserId)
+            }
+            stashCategoryWithItemResult.onSuccess { stashCategoryWithResult ->
+                stashCategoryWithResult.collect { list ->
                     _stashScreenState.update {
                         it.copy(
                             isLoading = false,
@@ -59,6 +54,12 @@ class HomeStashScreenViewModel(
                         )
                     }
                 }
+            }
+            stashCategoryWithItemResult.onFailure {
+                _stashScreenState.update {
+                    it.copy(isLoading = false)
+                }
+            }
         }
     }
 
@@ -66,11 +67,10 @@ class HomeStashScreenViewModel(
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
             _stashScreenState.update { it.copy(isLoading = true) }
-            try {
+            SafeIOUtil.safeCall {
                 stashDataUseCase.addStashCategory(categoryId, categoryName, loggedUserId)
-            } finally {
-                _stashScreenState.update { it.copy(isLoading = false) }
             }
+            _stashScreenState.update { it.copy(isLoading = false) }
         }
     }
 

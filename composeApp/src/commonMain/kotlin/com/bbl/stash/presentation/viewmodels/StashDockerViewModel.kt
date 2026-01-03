@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -36,17 +34,22 @@ class StashDockerViewModel(
     private fun getStashData(stashCategoryId: String) {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
-            stashDataUseCase.getCategoryDataWithItemsForId(stashCategoryId, loggedUserId).onStart {
-                _stashScreenState.update {
-                    it.copy(isLoading = true)
+            _stashScreenState.update {
+                it.copy(isLoading = true)
+            }
+            val stashItemList = SafeIOUtil.safeCall {
+                stashDataUseCase.getCategoryDataWithItemsForId(stashCategoryId, loggedUserId)
+            }
+            stashItemList.onSuccess { itemList ->
+                itemList.collect { item ->
+                    _stashScreenState.update {
+                        it.copy(isLoading = false, stashItemList = item)
+                    }
                 }
-            }.catch {
+            }
+            stashItemList.onFailure {
                 _stashScreenState.update {
                     it.copy(isLoading = false)
-                }
-            }.collect { item ->
-                _stashScreenState.update {
-                    it.copy(isLoading = false, stashItemList = item)
                 }
             }
         }
@@ -59,7 +62,7 @@ class StashDockerViewModel(
                 _stashScreenState.update {
                     it.copy(isLoading = true)
                 }
-                try {
+                SafeIOUtil.safeCall {
                     stashDataUseCase.addStashItem(
                         loggedUserId,
                         stashItemId,
@@ -69,10 +72,9 @@ class StashDockerViewModel(
                         stashItemRating,
                         stashItemCompletedStatus
                     )
-                } finally {
-                    _stashScreenState.update {
-                        it.copy(isLoading = false)
-                    }
+                }
+                _stashScreenState.update {
+                    it.copy(isLoading = false)
                 }
             }
         }
