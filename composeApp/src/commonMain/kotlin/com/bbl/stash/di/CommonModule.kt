@@ -17,13 +17,18 @@ import com.bbl.stash.common.infra.InfraProvider
 import com.bbl.stash.common.infra.PreferenceManager
 import com.bbl.stash.common.infra.SecureStorage
 import com.bbl.stash.common.infra.TokenAuthenticator
+import com.bbl.stash.data.client.SerpImageClient
 import com.bbl.stash.data.client.StashClient
+import com.bbl.stash.data.client.createSerpImageClient
 import com.bbl.stash.data.client.createStashClient
 import com.bbl.stash.data.dao.StashDao
+import com.bbl.stash.data.repositoryImpl.SerpImageNetwork
 import com.bbl.stash.data.repositoryImpl.StashDataRepositoryImpl
 import com.bbl.stash.data.repositoryImpl.StashRemoteRepositoryImpl
+import com.bbl.stash.domain.repository.SerpImageRepository
 import com.bbl.stash.domain.repository.StashDataRepository
 import com.bbl.stash.domain.repository.StashRemoteRepository
+import com.bbl.stash.domain.usecase.SerpImageUseCase
 import com.bbl.stash.domain.usecase.StashDataUseCase
 import com.bbl.stash.sync.StashSyncManager
 import org.koin.dsl.module
@@ -38,7 +43,7 @@ val commonModule = module {
     }
 
     single<StashRemoteRepository> {
-        StashRemoteRepositoryImpl(get<StashClient>(), get<StashDao>(), get<AuthPreferencesUseCase>())
+        StashRemoteRepositoryImpl(get<StashClient>(), get<StashDao>(), get<AuthPreferencesUseCase>(), get<SerpImageUseCase>())
     }
 
     single<StashClient> {
@@ -86,5 +91,18 @@ val commonModule = module {
 
     single<StashSyncManager> {
         StashSyncManager(get<StashRemoteRepository>())
+    }
+
+    single<SerpImageUseCase> {
+        SerpImageUseCase(get())
+    }
+
+    single<SerpImageRepository> {
+        SerpImageNetwork(get())
+    }
+
+    single<SerpImageClient> {
+        val ktorfit = InfraProvider.getKtorFitInstanceForSerp()
+        ktorfit.createSerpImageClient()
     }
 }

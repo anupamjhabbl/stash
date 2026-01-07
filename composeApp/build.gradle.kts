@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -110,6 +111,14 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
+        val localProperties = Properties()
+        rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use {
+            localProperties.load(it)
+        }
+        val serpApiKey: String = localProperties.getProperty("SERP_API_KEY") ?: "null"
+
+        buildConfigField("String", "SERP_API_KEY", "\"$serpApiKey\"")
     }
     packaging {
         resources {
@@ -120,6 +129,9 @@ android {
         getByName("release") {
             isMinifyEnabled = false
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

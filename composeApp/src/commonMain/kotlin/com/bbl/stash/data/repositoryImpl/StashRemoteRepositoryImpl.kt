@@ -1,6 +1,7 @@
 package com.bbl.stash.data.repositoryImpl
 
 import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
+import com.bbl.stash.common.BuildConfigValues
 import com.bbl.stash.data.client.StashClient
 import com.bbl.stash.data.client.model.StashCategory
 import com.bbl.stash.data.client.model.StashCategoryBatch
@@ -14,11 +15,13 @@ import com.bbl.stash.domain.model.entity.StashCategorySync
 import com.bbl.stash.domain.model.entity.StashItemSync
 import com.bbl.stash.domain.model.entity.SyncStatus
 import com.bbl.stash.domain.repository.StashRemoteRepository
+import com.bbl.stash.domain.usecase.SerpImageUseCase
 
 class StashRemoteRepositoryImpl(
     private val stashClient: StashClient,
     private val stashDao: StashDao,
-    private val authPreferencesUseCase: AuthPreferencesUseCase
+    private val authPreferencesUseCase: AuthPreferencesUseCase,
+    private val serpImageUseCase: SerpImageUseCase
 ): StashRemoteRepository {
     override suspend fun updateCategoriesFromRemote() {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
@@ -200,5 +203,24 @@ class StashRemoteRepositoryImpl(
             )
         )
         stashDao.clearDeletedItem()
+    }
+
+    override suspend fun putImage() {
+        val itemList = stashDao.getCategoriesWithItem()
+        itemList.forEach { categoryWithItems ->
+            categoryWithItems.items
+                .filter {
+                    it.stashItemUrl.isEmpty()
+                }.forEach {
+                    try {
+                        val imageUri = serpImageUseCase.getImageUri("${categoryWithItems.category.categoryName} ${it.stashItemName}", BuildConfigValues.getSerpApiKey())
+                        if (!imageUri.isNullOrEmpty()) {
+                            stashDao.insertStashItem(it.copy(stashItemUrl = imageUri))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+        }
     }
 }

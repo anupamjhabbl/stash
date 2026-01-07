@@ -14,6 +14,7 @@ import com.bbl.stash.domain.model.entity.StashCategorySync
 import com.bbl.stash.domain.model.entity.StashItem
 import com.bbl.stash.domain.model.entity.StashItemSync
 import com.bbl.stash.domain.model.entity.StashItemWithSync
+import com.bbl.stash.domain.model.entity.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -93,4 +94,42 @@ interface StashDao {
 
     @Query("DELETE FROM deleted_item")
     suspend fun clearDeletedItem()
+
+    @Transaction
+    @Query("SELECT * FROM stash_category")
+    suspend fun getCategoriesWithItem(): List<CategoryWithItems>
+
+    @Transaction
+    suspend fun insertItemAndSyncStatus(stashItem: StashItem) {
+        insertStashItem(stashItem)
+        insertStashItemSync(
+            StashItemSync(
+                stashItemId = stashItem.stashItemId,
+                syncStatus = SyncStatus.PENDING.status
+            )
+        )
+    }
+
+    @Transaction
+    suspend fun insertStashCategoryAndSyncStatus(stashCategory: StashCategory) {
+        insertStashCategory(stashCategory)
+        insertStashCategorySync(
+            StashCategorySync(
+                stashCategoryId = stashCategory.categoryId,
+                syncStatus = SyncStatus.PENDING.status
+            )
+        )
+    }
+
+    @Transaction
+    suspend fun deleteStashCategoryAndAddInDeleted(categoryId: String) {
+        deleteStashCategory(categoryId)
+        insertDeletedCategory(DeletedCategory(categoryId))
+    }
+
+    @Transaction
+    suspend fun deleteStashItemAndAddInDeleted(itemId: String) {
+        deleteStashItem(itemId)
+        insertDeletedItem(DeletedItem(itemId))
+    }
 }

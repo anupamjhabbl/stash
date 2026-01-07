@@ -6,6 +6,7 @@ class StashSyncManager(
     private val stashRemoteRepository: StashRemoteRepository
 ) {
     suspend fun syncData() {
+        stashRemoteRepository.putImage()
         stashRemoteRepository.updateCategoriesFromRemote()
         stashRemoteRepository.updateItemsFromRemote()
         stashRemoteRepository.updateCategoriesToRemote()

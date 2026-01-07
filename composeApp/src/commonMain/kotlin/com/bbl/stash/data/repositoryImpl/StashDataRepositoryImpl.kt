@@ -3,12 +3,7 @@ package com.bbl.stash.data.repositoryImpl
 import com.bbl.stash.data.dao.StashDao
 import com.bbl.stash.domain.model.dto.EntityToDtoMapper.mapToDto
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
-import com.bbl.stash.domain.model.entity.DeletedCategory
-import com.bbl.stash.domain.model.entity.DeletedItem
 import com.bbl.stash.domain.model.entity.StashCategory
-import com.bbl.stash.domain.model.entity.StashCategorySync
-import com.bbl.stash.domain.model.entity.StashItemSync
-import com.bbl.stash.domain.model.entity.SyncStatus
 import com.bbl.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,13 +32,7 @@ class StashDataRepositoryImpl(
                 categoryName = categoryName
             )
         }
-        stashDao.insertStashCategory(stashCategory)
-        stashDao.insertStashCategorySync(
-            StashCategorySync(
-                stashCategoryId = stashCategory.categoryId,
-                syncStatus = SyncStatus.PENDING.status
-            )
-        )
+        stashDao.insertStashCategoryAndSyncStatus(stashCategory)
     }
 
     override fun getCategoryDataWithItemsForId(stashCategoryId: String, loggedUserId: String): Flow<StashCategoryWithItem> {
@@ -83,22 +72,14 @@ class StashDataRepositoryImpl(
                 stashItemCompleted = itemCompletedStatus
             )
         }
-        stashDao.insertStashItem(stashItem)
-        stashDao.insertStashItemSync(
-            StashItemSync(
-                stashItemId = stashItem.stashItemId,
-                syncStatus = SyncStatus.PENDING.status
-            )
-        )
+        stashDao.insertItemAndSyncStatus(stashItem)
     }
 
     override suspend fun deleteStashCategory(categoryId: String) {
-        stashDao.deleteStashCategory(categoryId)
-        stashDao.insertDeletedCategory(DeletedCategory(categoryId))
+        stashDao.deleteStashCategoryAndAddInDeleted(categoryId)
     }
 
     override suspend fun deleteStashItem(itemId: String) {
-        stashDao.deleteStashItem(itemId)
-        stashDao.insertDeletedItem(DeletedItem(itemId))
+        stashDao.deleteStashItemAndAddInDeleted(itemId)
     }
 }

@@ -17,6 +17,8 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object InfraProvider {
+    private const val SERP_BASE_API =  "https://serpapi.com/"
+
     fun getHttpClient(
         engine: HttpClientEngine,
         tokenAuthenticator: TokenAuthenticator
@@ -92,6 +94,15 @@ object InfraProvider {
             .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine()))
             .build()
     }
+
+    fun getKtorFitInstanceForSerp(): Ktorfit {
+        return Ktorfit
+            .Builder()
+            .baseUrl(SERP_BASE_API)
+            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine()))
+            .build()
+    }
+
 }
 
 expect object PlatformInfraProvider {

@@ -7,4 +7,5 @@ interface StashRemoteRepository {
     suspend fun updateItemsToRemote()
     suspend fun deleteCategoryToRemote()
     suspend fun deleteItemToRemote()
+    suspend fun putImage()
 }
