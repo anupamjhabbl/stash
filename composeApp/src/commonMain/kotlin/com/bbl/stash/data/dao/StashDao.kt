@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.bbl.stash.domain.model.entity.CategoryWithItems
 import com.bbl.stash.domain.model.entity.CategoryWithSync
 import com.bbl.stash.domain.model.entity.DeletedCategory
@@ -19,16 +20,16 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StashDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertStashCategory(stashCategory: StashCategory)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertStashCategoryList(stashCategoryList: List<StashCategory>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertStashItem(stashItem: StashItem)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertStashItemList(stashItemList: List<StashItem>)
 
     @Transaction
