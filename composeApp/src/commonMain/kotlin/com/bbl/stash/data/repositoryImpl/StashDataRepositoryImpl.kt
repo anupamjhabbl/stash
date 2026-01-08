@@ -135,6 +135,6 @@ class StashDataRepositoryImpl(
     }
 
     override suspend fun insertStashItem(stashItem: com.bbl.stash.domain.model.entity.StashItem) {
-        stashDao.insertStashItem(stashItem)
+        stashDao.insertItemAndSyncStatus(stashItem)
     }
 }
