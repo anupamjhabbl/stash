@@ -11,6 +11,7 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.accept
+import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -18,6 +19,7 @@ import kotlinx.serialization.json.Json
 
 object InfraProvider {
     private const val SERP_BASE_API =  "https://serpapi.com/"
+    private const val DEVICE_ID = "a3f1c9e2-8b4a-4d1a-9e55-123abc456"
 
     fun getHttpClient(
         engine: HttpClientEngine,
@@ -35,6 +37,7 @@ object InfraProvider {
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                header(Constants.HTTPHeaders.X_DEVICE_ID, DEVICE_ID)
             }
             install(Auth) {
                 bearer {
@@ -74,6 +77,7 @@ object InfraProvider {
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                header(Constants.HTTPHeaders.X_DEVICE_ID, DEVICE_ID)
             }
         }
     }

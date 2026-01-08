@@ -8,7 +8,8 @@ object Constants {
 
     object HTTPHeaders {
         const val AUTHORIZATION_BEARER = "Bearer"
-        const val AUTHORIZATION = "Authorization"
+        const val AUTHORIZATION = "authorization"
+        const val X_DEVICE_ID = "x-device-id"
     }
 
     object Origin {
