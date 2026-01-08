@@ -189,6 +189,7 @@ class StashRemoteRepositoryImpl(
 
     override suspend fun deleteCategoryToRemote() {
         val categoriesToDelete = stashDao.getDeletedCategory()
+        if (categoriesToDelete.isEmpty()) return
         stashClient.deleteCategories(
             StashDeleteCategories(
                 categoriesToDelete.map { it.categoryId }
@@ -199,6 +200,7 @@ class StashRemoteRepositoryImpl(
 
     override suspend fun deleteItemToRemote() {
         val itemsToDelete = stashDao.getDeletedItem()
+        if (itemsToDelete.isEmpty()) return
         stashClient.deleteItems(
             StashDeleteItems(
                 itemsToDelete.map { it.itemId }
