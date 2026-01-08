@@ -141,6 +141,7 @@ class StashRemoteRepositoryImpl(
                 it.syncData.lastUpdated
             )
         }
+        if (filteredCategoryWithSync.isEmpty()) return
         stashClient.updateCategories(
             StashCategoryBatch(
                 stashCategoryList = filteredCategoryWithSyncForUpdate
@@ -168,6 +169,7 @@ class StashRemoteRepositoryImpl(
                 it.syncData.lastUpdated
             )
         }
+        if (filteredItemsWithSyncForUpdate.isEmpty()) return
         stashClient.updateItems(
             StashItemBatch(
                 stashItemList = filteredItemsWithSyncForUpdate
