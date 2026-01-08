@@ -25,7 +25,7 @@ class StashRemoteRepositoryImpl(
 ): StashRemoteRepository {
     override suspend fun updateCategoriesFromRemote() {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
-        val categoriesFromRemote = stashClient.getCategories().stashCategoryList
+        val categoriesFromRemote = stashClient.getCategories().data?.stashCategoryList ?: emptyList()
         val categoriesFromLocal = stashDao.getCategoriesWithSyncData(loggedUserId)
         val localCategoriesById = categoriesFromLocal.associateBy {
             it.stashCategory.categoryId
@@ -76,7 +76,7 @@ class StashRemoteRepositoryImpl(
 
     override suspend fun updateItemsFromRemote() {
         val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
-        val itemsFromRemote = stashClient.getItems().stashItemList
+        val itemsFromRemote = stashClient.getItems().data?.stashItemList ?: emptyList()
         val itemsFromLocal = stashDao.getItemsWithSyncData(loggedUserId)
         val localItemsById = itemsFromLocal.associateBy {
             it.stashItem.stashItemId

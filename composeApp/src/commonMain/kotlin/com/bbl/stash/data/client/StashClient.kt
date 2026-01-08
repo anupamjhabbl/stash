@@ -1,5 +1,6 @@
 package com.bbl.stash.data.client
 
+import com.bbl.stash.auth.entity.BaseResponse
 import com.bbl.stash.data.client.model.StashCategoryBatch
 import com.bbl.stash.data.client.model.StashDeleteCategories
 import com.bbl.stash.data.client.model.StashDeleteItems
@@ -17,10 +18,10 @@ interface StashClient {
     suspend fun updateItems(@Body itemList: StashItemBatch)
 
     @GET("api/categories/batch")
-    suspend fun getCategories(): StashCategoryBatch
+    suspend fun getCategories(): BaseResponse<StashCategoryBatch>
 
     @GET("api/items/batch")
-    suspend fun getItems(): StashItemBatch
+    suspend fun getItems(): BaseResponse<StashItemBatch>
 
     @DELETE("api/categories/batch")
     suspend fun deleteCategories(@Body stashDeleteCategories: StashDeleteCategories)
