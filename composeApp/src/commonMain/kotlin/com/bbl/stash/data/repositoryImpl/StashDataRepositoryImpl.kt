@@ -3,7 +3,14 @@ package com.bbl.stash.data.repositoryImpl
 import com.bbl.stash.data.dao.StashDao
 import com.bbl.stash.domain.model.dto.EntityToDtoMapper.mapToDto
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
+import com.bbl.stash.domain.model.entity.CategoryWithItems
+import com.bbl.stash.domain.model.entity.CategoryWithSync
+import com.bbl.stash.domain.model.entity.DeletedCategory
+import com.bbl.stash.domain.model.entity.DeletedItem
 import com.bbl.stash.domain.model.entity.StashCategory
+import com.bbl.stash.domain.model.entity.StashCategorySync
+import com.bbl.stash.domain.model.entity.StashItemSync
+import com.bbl.stash.domain.model.entity.StashItemWithSync
 import com.bbl.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -81,5 +88,53 @@ class StashDataRepositoryImpl(
 
     override suspend fun deleteStashItem(itemId: String) {
         stashDao.deleteStashItemAndAddInDeleted(itemId)
+    }
+
+    override suspend fun getCategoriesFromLocal(loggedUserId: String): List<CategoryWithSync> {
+        return stashDao.getCategoriesWithSyncData(loggedUserId)
+    }
+
+    override suspend fun insertStashCategoryList(categoryListToUpdate: List<StashCategory>) {
+        stashDao.insertStashCategoryList(categoryListToUpdate)
+    }
+
+    override suspend fun insertStashCategorySyncList(categorySyncListToUpdate: List<StashCategorySync>) {
+        stashDao.insertStashCategorySyncList(categorySyncListToUpdate)
+    }
+
+    override suspend fun getItemsFromLocal(loggedUserId: String): List<StashItemWithSync> {
+        return stashDao.getItemsWithSyncData(loggedUserId)
+    }
+
+    override suspend fun insertStashItemList(itemsListToUpdate: List<com.bbl.stash.domain.model.entity.StashItem>) {
+        stashDao.insertStashItemList(itemsListToUpdate)
+    }
+
+    override suspend fun insertStashItemSyncList(itemsSyncListToUpdate: List<StashItemSync>) {
+        stashDao.insertStashItemSyncList(itemsSyncListToUpdate)
+    }
+
+    override suspend fun getDeletedCategory(): List<DeletedCategory> {
+        return stashDao.getDeletedCategory()
+    }
+
+    override suspend fun clearDeleteRepository() {
+        stashDao.clearDeletedCategory()
+    }
+
+    override suspend fun getDeletedItem(): List<DeletedItem> {
+        return stashDao.getDeletedItem()
+    }
+
+    override suspend fun clearDeletedItem() {
+        stashDao.clearDeletedItem()
+    }
+
+    override suspend fun getCategoriesWithItem(): List<CategoryWithItems> {
+        return stashDao.getCategoriesWithItem()
+    }
+
+    override suspend fun insertStashItem(stashItem: com.bbl.stash.domain.model.entity.StashItem) {
+        stashDao.insertStashItem(stashItem)
     }
 }

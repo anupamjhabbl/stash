@@ -31,6 +31,7 @@ import com.bbl.stash.domain.repository.StashDataRepository
 import com.bbl.stash.domain.repository.StashRemoteRepository
 import com.bbl.stash.domain.usecase.SerpImageUseCase
 import com.bbl.stash.domain.usecase.StashDataUseCase
+import com.bbl.stash.domain.usecase.StashSyncUseCase
 import com.bbl.stash.sync.StashSyncManager
 import org.koin.dsl.module
 
@@ -44,7 +45,7 @@ val commonModule = module {
     }
 
     single<StashRemoteRepository> {
-        StashRemoteRepositoryImpl(get<StashClient>(), get<StashDao>(), get<AuthPreferencesUseCase>(), get<SerpImageUseCase>())
+        StashRemoteRepositoryImpl(get<StashClient>())
     }
 
     single<StashClient> {
@@ -90,8 +91,12 @@ val commonModule = module {
         ProfileUseCase(get<GetProfileRepository>())
     }
 
+    single<StashSyncUseCase> {
+        StashSyncUseCase(get<StashRemoteRepository>(), get<StashDataRepository>(), get<AuthPreferencesUseCase>(), get<SerpImageUseCase>())
+    }
+
     single<StashSyncManager> {
-        StashSyncManager(get<StashRemoteRepository>())
+        StashSyncManager(get<StashSyncUseCase>())
     }
 
     single<SerpImageUseCase> {
