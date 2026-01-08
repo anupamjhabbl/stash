@@ -82,12 +82,12 @@ class StashDataRepositoryImpl(
         stashDao.insertItemAndSyncStatus(stashItem)
     }
 
-    override suspend fun deleteStashCategory(categoryId: String) {
-        stashDao.deleteStashCategoryAndAddInDeleted(categoryId)
+    override suspend fun deleteStashCategory(categoryId: String, loggedUserId: String) {
+        stashDao.deleteStashCategoryAndAddInDeleted(categoryId, loggedUserId)
     }
 
-    override suspend fun deleteStashItem(itemId: String) {
-        stashDao.deleteStashItemAndAddInDeleted(itemId)
+    override suspend fun deleteStashItem(itemId: String, loggedUserId: String) {
+        stashDao.deleteStashItemAndAddInDeleted(itemId, loggedUserId)
     }
 
     override suspend fun getCategoriesFromLocal(loggedUserId: String): List<CategoryWithSync> {
@@ -114,20 +114,20 @@ class StashDataRepositoryImpl(
         stashDao.insertStashItemSyncList(itemsSyncListToUpdate)
     }
 
-    override suspend fun getDeletedCategory(): List<DeletedCategory> {
-        return stashDao.getDeletedCategory()
+    override suspend fun getDeletedCategory(loggedUserId: String): List<DeletedCategory> {
+        return stashDao.getDeletedCategory(loggedUserId)
     }
 
-    override suspend fun clearDeleteRepository() {
-        stashDao.clearDeletedCategory()
+    override suspend fun clearDeletedCategory(loggedUserId: String) {
+        stashDao.clearDeletedCategory(loggedUserId)
     }
 
-    override suspend fun getDeletedItem(): List<DeletedItem> {
-        return stashDao.getDeletedItem()
+    override suspend fun getDeletedItem(loggedUserId: String): List<DeletedItem> {
+        return stashDao.getDeletedItem(loggedUserId)
     }
 
-    override suspend fun clearDeletedItem() {
-        stashDao.clearDeletedItem()
+    override suspend fun clearDeletedItem(loggedUserId: String) {
+        stashDao.clearDeletedItem(loggedUserId)
     }
 
     override suspend fun getCategoriesWithItem(): List<CategoryWithItems> {

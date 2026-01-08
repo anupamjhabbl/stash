@@ -29,9 +29,9 @@ interface StashDataRepository {
         itemCompletedStatus: String
     )
 
-    suspend fun deleteStashCategory(categoryId: String)
+    suspend fun deleteStashCategory(categoryId: String, loggedUserId: String)
 
-    suspend fun deleteStashItem(itemId: String)
+    suspend fun deleteStashItem(itemId: String, loggedUserId: String)
 
     suspend fun getCategoriesFromLocal(loggedUserId: String): List<CategoryWithSync>
 
@@ -45,13 +45,13 @@ interface StashDataRepository {
 
     suspend fun insertStashItemSyncList(itemsSyncListToUpdate: List<StashItemSync>)
 
-    suspend fun getDeletedCategory(): List<DeletedCategory>
+    suspend fun getDeletedCategory(loggedUserId: String): List<DeletedCategory>
 
-    suspend fun clearDeleteRepository()
+    suspend fun clearDeletedCategory(loggedUserId: String)
 
-    suspend fun getDeletedItem(): List<DeletedItem>
+    suspend fun getDeletedItem(loggedUserId: String): List<DeletedItem>
 
-    suspend fun clearDeletedItem()
+    suspend fun clearDeletedItem(loggedUserId: String)
 
     suspend fun getCategoriesWithItem(): List<CategoryWithItems>
 

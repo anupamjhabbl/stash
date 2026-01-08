@@ -83,17 +83,17 @@ interface StashDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDeletedItem(deletedItem: DeletedItem)
 
-    @Query("SELECT * FROM deleted_category")
-    suspend fun getDeletedCategory(): List<DeletedCategory>
+    @Query("SELECT * FROM deleted_category WHERE userId = :loggedUserId")
+    suspend fun getDeletedCategory(loggedUserId: String): List<DeletedCategory>
 
-    @Query("SELECT * FROM deleted_item")
-    suspend fun getDeletedItem(): List<DeletedItem>
+    @Query("SELECT * FROM deleted_item WHERE userId = :loggedUserId")
+    suspend fun getDeletedItem(loggedUserId: String): List<DeletedItem>
 
-    @Query("DELETE FROM deleted_category")
-    suspend fun clearDeletedCategory()
+    @Query("DELETE FROM deleted_category WHERE userId = :loggedUserId")
+    suspend fun clearDeletedCategory(loggedUserId: String)
 
-    @Query("DELETE FROM deleted_item")
-    suspend fun clearDeletedItem()
+    @Query("DELETE FROM deleted_item WHERE userId = :loggedUserId")
+    suspend fun clearDeletedItem(loggedUserId: String)
 
     @Transaction
     @Query("SELECT * FROM stash_category")
@@ -122,14 +122,14 @@ interface StashDao {
     }
 
     @Transaction
-    suspend fun deleteStashCategoryAndAddInDeleted(categoryId: String) {
+    suspend fun deleteStashCategoryAndAddInDeleted(categoryId: String, loggedUserId: String) {
         deleteStashCategory(categoryId)
-        insertDeletedCategory(DeletedCategory(categoryId))
+        insertDeletedCategory(DeletedCategory(categoryId, loggedUserId))
     }
 
     @Transaction
-    suspend fun deleteStashItemAndAddInDeleted(itemId: String) {
+    suspend fun deleteStashItemAndAddInDeleted(itemId: String, loggedUserId: String) {
         deleteStashItem(itemId)
-        insertDeletedItem(DeletedItem(itemId))
+        insertDeletedItem(DeletedItem(itemId, loggedUserId))
     }
 }

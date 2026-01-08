@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "f8d2c49c809fcaca6d009090a40eeddf",
+    "identityHash": "47b1838af3cb6710e00bab29c42f29d6",
     "entities": [
       {
         "tableName": "stash_category",
@@ -212,13 +212,20 @@
       },
       {
         "tableName": "deleted_item",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` TEXT NOT NULL, PRIMARY KEY(`itemId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` TEXT NOT NULL, `userId` TEXT NOT NULL DEFAULT '0', PRIMARY KEY(`itemId`))",
         "fields": [
           {
             "fieldPath": "itemId",
             "columnName": "itemId",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'0'"
           }
         ],
         "primaryKey": {
@@ -230,13 +237,20 @@
       },
       {
         "tableName": "deleted_category",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` TEXT NOT NULL, PRIMARY KEY(`categoryId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` TEXT NOT NULL, `userId` TEXT NOT NULL DEFAULT '0', PRIMARY KEY(`categoryId`))",
         "fields": [
           {
             "fieldPath": "categoryId",
             "columnName": "categoryId",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'0'"
           }
         ],
         "primaryKey": {
@@ -249,7 +263,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8d2c49c809fcaca6d009090a40eeddf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '47b1838af3cb6710e00bab29c42f29d6')"
     ]
   }
 }

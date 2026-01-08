@@ -103,9 +103,10 @@ class HomeStashScreenViewModel(
     }
 
     fun deleteCategory(categoryId: String) {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
             val result = SafeIOUtil.safeCall {
-                stashDataUseCase.deleteStashCategory(categoryId)
+                stashDataUseCase.deleteStashCategory(categoryId, loggedUserId)
             }
             result.onFailure {
                 _homeStashScreenEffect.emit(HomeStashScreenEffect.DeleteFailure)

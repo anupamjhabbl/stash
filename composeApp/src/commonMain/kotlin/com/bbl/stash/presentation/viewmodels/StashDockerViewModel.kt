@@ -81,9 +81,10 @@ class StashDockerViewModel(
     }
 
     fun deleteStashItem(itemId: String) {
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
         viewModelScope.launch {
             val result = SafeIOUtil.safeCall {
-                stashDataUseCase.deleteStashItem(itemId)
+                stashDataUseCase.deleteStashItem(itemId, loggedUserId)
             }
             result.onFailure {
                 _stashDockerScreenEffect.emit(StashDockerScreenEffect.DeleteFailure)

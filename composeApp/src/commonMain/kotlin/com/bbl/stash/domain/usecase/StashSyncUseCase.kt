@@ -174,25 +174,27 @@ class StashSyncUseCase(
     }
 
     suspend fun deleteCategoryToRemote() {
-        val categoriesToDelete = stashDataRepository.getDeletedCategory()
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
+        val categoriesToDelete = stashDataRepository.getDeletedCategory(loggedUserId)
         if (categoriesToDelete.isEmpty()) return
         stashRemoteRepository.deleteCategoryToRemote(
             StashDeleteCategories(
                 categoriesToDelete.map { it.categoryId }
             )
         )
-        stashDataRepository.clearDeleteRepository()
+        stashDataRepository.clearDeletedCategory(loggedUserId)
     }
 
     suspend fun deleteItemToRemote() {
-        val itemsToDelete = stashDataRepository.getDeletedItem()
+        val loggedUserId = authPreferencesUseCase.getLoggedUserId() ?: return
+        val itemsToDelete = stashDataRepository.getDeletedItem(loggedUserId)
         if (itemsToDelete.isEmpty()) return
         stashRemoteRepository.deleteItemToRemote(
             StashDeleteItems(
                 itemsToDelete.map { it.itemId }
             )
         )
-        stashDataRepository.clearDeletedItem()
+        stashDataRepository.clearDeletedItem(loggedUserId)
     }
 
     suspend fun putImage() {

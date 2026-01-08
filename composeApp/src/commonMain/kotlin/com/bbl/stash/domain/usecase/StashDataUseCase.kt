@@ -1,6 +1,7 @@
 package com.bbl.stash.domain.usecase
 
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
+import com.bbl.stash.domain.model.dto.StashItem
 import com.bbl.stash.domain.repository.StashDataRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -39,11 +40,11 @@ class StashDataUseCase(
         )
     }
 
-    suspend fun deleteStashCategory(categoryId: String) {
-        stashDataRepository.deleteStashCategory(categoryId)
+    suspend fun deleteStashCategory(categoryId: String, loggedUserId: String) {
+        stashDataRepository.deleteStashCategory(categoryId, loggedUserId)
     }
 
-    suspend fun deleteStashItem(itemId: String) {
-        stashDataRepository.deleteStashItem(itemId)
+    suspend fun deleteStashItem(itemId: String, loggedUserId: String) {
+        stashDataRepository.deleteStashItem(itemId, loggedUserId)
     }
 }
