@@ -30,6 +30,7 @@ object InfraProvider {
             install(ContentNegotiation) {
                 json(
                     Json {
+                        encodeDefaults = true
                         ignoreUnknownKeys = true
                         isLenient = true
                     }
