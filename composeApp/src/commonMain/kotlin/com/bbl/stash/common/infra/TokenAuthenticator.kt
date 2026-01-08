@@ -19,12 +19,14 @@ class TokenAuthenticator(
 
             if (response.isSuccess && response.data != null) {
                 val newAccessToken = response.data.accessToken
+                val newRefreshToken = response.data.refreshToken
 
                 authPreferencesUseCase.saveAccessToken(newAccessToken)
+                authPreferencesUseCase.saveRefreshToken(newRefreshToken)
 
                 BearerTokens(
                     accessToken = newAccessToken,
-                    refreshToken = refreshToken
+                    refreshToken = newRefreshToken
                 )
             } else {
                 null

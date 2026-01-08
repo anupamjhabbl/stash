@@ -1,6 +1,7 @@
 package com.bbl.stash.common.infra
 
 import com.bbl.stash.common.Constants
+import com.bbl.stash.common.DeviceIdProvider
 import com.bbl.stash.common.PlatformConstants
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
@@ -19,11 +20,11 @@ import kotlinx.serialization.json.Json
 
 object InfraProvider {
     private const val SERP_BASE_API =  "https://serpapi.com/"
-    private const val DEVICE_ID = "a3f1c9e2-8b4a-4d1a-9e55-123abc456"
 
     fun getHttpClient(
         engine: HttpClientEngine,
-        tokenAuthenticator: TokenAuthenticator
+        tokenAuthenticator: TokenAuthenticator,
+        deviceIdProvider: DeviceIdProvider
     ): HttpClient {
         return HttpClient(engine) {
             install(ContentNegotiation) {
@@ -37,7 +38,7 @@ object InfraProvider {
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                header(Constants.HTTPHeaders.X_DEVICE_ID, DEVICE_ID)
+                header(Constants.HTTPHeaders.X_DEVICE_ID, deviceIdProvider.get())
             }
             install(Auth) {
                 bearer {
@@ -63,7 +64,8 @@ object InfraProvider {
     }
 
     fun getHttpClient(
-        engine: HttpClientEngine
+        engine: HttpClientEngine,
+        deviceIdProvider: DeviceIdProvider
     ) : HttpClient {
         return HttpClient(engine) {
             install(ContentNegotiation) {
@@ -77,33 +79,33 @@ object InfraProvider {
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                header(Constants.HTTPHeaders.X_DEVICE_ID, DEVICE_ID)
+                header(Constants.HTTPHeaders.X_DEVICE_ID, deviceIdProvider.get())
             }
         }
     }
 
 
-    fun getKtorFitInstance(tokenAuthenticator: TokenAuthenticator): Ktorfit {
+    fun getKtorFitInstance(tokenAuthenticator: TokenAuthenticator, deviceIdProvider: DeviceIdProvider): Ktorfit {
         return Ktorfit
             .Builder()
             .baseUrl(PlatformConstants.getBaseUrl())
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), tokenAuthenticator))
+            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), tokenAuthenticator, deviceIdProvider))
             .build()
     }
 
-    fun getKtorFitInstance(): Ktorfit {
+    fun getKtorFitInstance(deviceIdProvider: DeviceIdProvider): Ktorfit {
         return Ktorfit
             .Builder()
             .baseUrl(PlatformConstants.getBaseUrl())
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine()))
+            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), deviceIdProvider))
             .build()
     }
 
-    fun getKtorFitInstanceForSerp(): Ktorfit {
+    fun getKtorFitInstanceForSerp(deviceIdProvider: DeviceIdProvider): Ktorfit {
         return Ktorfit
             .Builder()
             .baseUrl(SERP_BASE_API)
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine()))
+            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), deviceIdProvider))
             .build()
     }
 

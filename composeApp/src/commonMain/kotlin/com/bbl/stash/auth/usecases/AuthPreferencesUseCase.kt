@@ -43,6 +43,8 @@ class AuthPreferencesUseCase(
     }
 
     fun removeUserData() {
+        authPreferenceRepository.removeAccessToken()
+        authPreferenceRepository.removeRefreshToken()
         authPreferenceRepository.removeLocalUser()
     }
 

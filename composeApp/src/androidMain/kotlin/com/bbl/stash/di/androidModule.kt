@@ -1,5 +1,7 @@
 package com.bbl.stash.di
 
+import com.bbl.stash.common.AndroidDeviceIdProvider
+import com.bbl.stash.common.DeviceIdProvider
 import com.bbl.stash.common.auth.GoogleAuthentication
 import org.koin.dsl.module
 
@@ -7,4 +9,6 @@ val androidModule = module {
     single<GoogleAuthentication> {
         GoogleAuthentication(get())
     }
+
+    single<DeviceIdProvider> { AndroidDeviceIdProvider(get()) }
 }

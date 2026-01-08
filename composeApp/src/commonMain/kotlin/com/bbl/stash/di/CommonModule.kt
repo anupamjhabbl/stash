@@ -13,6 +13,7 @@ import com.bbl.stash.auth.repositoryImpl.UserAuthNetwork
 import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
 import com.bbl.stash.auth.usecases.ProfileUseCase
 import com.bbl.stash.auth.usecases.UserAuthUseCase
+import com.bbl.stash.common.DeviceIdProvider
 import com.bbl.stash.common.infra.InfraProvider
 import com.bbl.stash.common.infra.PreferenceManager
 import com.bbl.stash.common.infra.SecureStorage
@@ -47,7 +48,7 @@ val commonModule = module {
     }
 
     single<StashClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()))
+        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()), get<DeviceIdProvider>())
         ktorfit.createStashClient()
     }
 
@@ -72,12 +73,12 @@ val commonModule = module {
     }
 
     single<UserAuthClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance()
+        val ktorfit = InfraProvider.getKtorFitInstance(get<DeviceIdProvider>())
         ktorfit.createUserAuthClient()
     }
 
     single<UserClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()))
+        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()), get<DeviceIdProvider>())
         ktorfit.createUserClient()
     }
 
@@ -102,7 +103,7 @@ val commonModule = module {
     }
 
     single<SerpImageClient> {
-        val ktorfit = InfraProvider.getKtorFitInstanceForSerp()
+        val ktorfit = InfraProvider.getKtorFitInstanceForSerp(get<DeviceIdProvider>())
         ktorfit.createSerpImageClient()
     }
 }
