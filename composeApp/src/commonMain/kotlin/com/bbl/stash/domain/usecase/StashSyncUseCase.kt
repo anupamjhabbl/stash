@@ -12,6 +12,7 @@ import com.bbl.stash.domain.model.entity.StashItemSync
 import com.bbl.stash.domain.model.entity.SyncStatus
 import com.bbl.stash.domain.repository.StashDataRepository
 import com.bbl.stash.domain.repository.StashRemoteRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 class StashSyncUseCase(
     private val stashRemoteRepository: StashRemoteRepository,
@@ -199,19 +200,24 @@ class StashSyncUseCase(
 
     suspend fun putImage() {
         val itemList = stashDataRepository.getCategoriesWithItem()
+        var limitCount = 2
         itemList.forEach { categoryWithItems ->
             categoryWithItems.items
                 .filter {
                     it.stashItemUrl.isEmpty()
                 }.forEach {
+                    limitCount--
                     try {
                         val imageUri = serpImageUseCase.getImageUri("${categoryWithItems.category.categoryName} ${it.stashItemName}", BuildConfigValues.getSerpApiKey())
                         if (!imageUri.isNullOrEmpty()) {
                             stashDataRepository.insertStashItem(it.copy(stashItemUrl = imageUri))
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
+                    if (limitCount == 0) return
                 }
         }
     }

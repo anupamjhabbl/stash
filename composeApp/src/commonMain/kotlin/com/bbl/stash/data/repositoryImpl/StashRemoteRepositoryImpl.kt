@@ -1,5 +1,6 @@
 package com.bbl.stash.data.repositoryImpl
 
+import com.bbl.stash.auth.entity.BaseResponse
 import com.bbl.stash.data.client.StashClient
 import com.bbl.stash.data.client.model.StashCategory
 import com.bbl.stash.data.client.model.StashCategoryBatch
@@ -13,38 +14,46 @@ class StashRemoteRepositoryImpl(
     private val stashClient: StashClient
 ): StashRemoteRepository {
     override suspend fun getCategoriesFromRemote(): List<StashCategory> {
-        return stashClient.getCategories().data?.stashCategoryList ?: emptyList()
+        return BaseResponse.processResponse { stashClient.getCategories() }?.stashCategoryList ?: emptyList()
     }
 
     override suspend fun getItemsFromRemote(): List<StashItem> {
-        return stashClient.getItems().data?.stashItemList ?: emptyList()
+        return BaseResponse.processResponse { stashClient.getItems() }?.stashItemList ?: emptyList()
     }
 
     override suspend fun updateCategoriesToRemote(filteredCategoryWithSync: List<StashCategory>) {
-        stashClient.updateCategories(
-            StashCategoryBatch(
-                stashCategoryList = filteredCategoryWithSync
+        BaseResponse.processResponse {
+            stashClient.updateCategories(
+                StashCategoryBatch(
+                    stashCategoryList = filteredCategoryWithSync
+                )
             )
-        )
+        }
     }
 
     override suspend fun updateItemsToRemote(filteredItemsWithSyncForUpdate: List<StashItem>) {
-        stashClient.updateItems(
-            StashItemBatch(
-                stashItemList = filteredItemsWithSyncForUpdate
+        BaseResponse.processResponse {
+            stashClient.updateItems(
+                StashItemBatch(
+                    stashItemList = filteredItemsWithSyncForUpdate
+                )
             )
-        )
+        }
     }
 
     override suspend fun deleteCategoryToRemote(stashDeleteCategories: StashDeleteCategories) {
-        return stashClient.deleteCategories(
-            stashDeleteCategories
-        )
+        BaseResponse.processResponse {
+            stashClient.deleteCategories(
+                stashDeleteCategories
+            )
+        }
     }
 
     override suspend fun deleteItemToRemote(stashDeleteItems: StashDeleteItems) {
-        stashClient.deleteItems(
-            stashDeleteItems
-        )
+        BaseResponse.processResponse {
+            stashClient.deleteItems(
+                stashDeleteItems
+            )
+        }
     }
 }

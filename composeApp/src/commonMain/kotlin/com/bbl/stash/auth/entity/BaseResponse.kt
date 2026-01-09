@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class BaseResponse<T>(
     val data: T? = null,
     val statusCode: Int,
-    val isSuccess: Boolean,
+    val isSuccess: Boolean = false,
     val message: String? = null
 ) {
     companion object {

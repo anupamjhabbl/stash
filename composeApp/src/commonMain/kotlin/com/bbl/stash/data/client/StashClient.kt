@@ -12,10 +12,10 @@ import de.jensklingenberg.ktorfit.http.POST
 
 interface StashClient {
     @POST("api/categories/batch")
-    suspend fun updateCategories(@Body categoryList: StashCategoryBatch)
+    suspend fun updateCategories(@Body categoryList: StashCategoryBatch): BaseResponse<Unit>
 
     @POST("api/items/batch")
-    suspend fun updateItems(@Body itemList: StashItemBatch)
+    suspend fun updateItems(@Body itemList: StashItemBatch): BaseResponse<Unit>
 
     @GET("api/categories/batch")
     suspend fun getCategories(): BaseResponse<StashCategoryBatch>
@@ -24,8 +24,8 @@ interface StashClient {
     suspend fun getItems(): BaseResponse<StashItemBatch>
 
     @DELETE("api/categories/batch")
-    suspend fun deleteCategories(@Body stashDeleteCategories: StashDeleteCategories)
+    suspend fun deleteCategories(@Body stashDeleteCategories: StashDeleteCategories): BaseResponse<Unit>
 
     @DELETE("api/items/batch")
-    suspend fun deleteItems(@Body stashDeleteItems: StashDeleteItems)
+    suspend fun deleteItems(@Body stashDeleteItems: StashDeleteItems): BaseResponse<Unit>
 }

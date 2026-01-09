@@ -9,7 +9,6 @@ import com.bbl.stash.common.SafeIOUtil
 import com.bbl.stash.domain.model.dto.StashCategoryWithItem
 import com.bbl.stash.domain.usecase.StashDataUseCase
 import com.bbl.stash.sync.StashSyncManager
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -80,21 +79,15 @@ class HomeStashScreenViewModel(
     fun logOutUser() {
         viewModelScope.launch {
             _stashScreenState.update { it.copy(isLoading = true) }
-            val dataSyncResult = async {
-                SafeIOUtil.safeCall {
-                    stashSyncManager.syncData()
+            val resultDataSync = SafeIOUtil.safeCall { stashSyncManager.syncData() }
+            if (resultDataSync.isSuccess) {
+                val resultLogOut = SafeIOUtil.safeCall { profileUseCase.logoutUser() }
+                if (resultLogOut.isSuccess) {
+                    authPreferencesUseCase.removeUserData()
+                    _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutUser)
+                } else {
+                    _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutFailure)
                 }
-            }
-            val resultDataSync = dataSyncResult.await()
-            val logOutResult = async {
-                SafeIOUtil.safeCall {
-                    profileUseCase.logoutUser()
-                }
-            }
-            val resultLogOut = logOutResult.await()
-            if (resultLogOut.isSuccess && resultDataSync.isSuccess) {
-                authPreferencesUseCase.removeUserData()
-                _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutUser)
             } else {
                 _homeStashScreenEffect.emit(HomeStashScreenEffect.LogOutFailure)
             }
