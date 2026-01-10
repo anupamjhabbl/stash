@@ -7,7 +7,6 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -20,6 +19,8 @@ import kotlinx.serialization.json.Json
 
 object InfraProvider {
     private const val SERP_BASE_API =  "https://serpapi.com/"
+    const val AUTH = "WithAuthenticator"
+    const val NO_AUTH = "WithoutAuthenticator"
 
     fun getHttpClient(
         engine: HttpClientEngine,
@@ -43,16 +44,7 @@ object InfraProvider {
             }
             install(Auth) {
                 bearer {
-                    loadTokens {
-                        val accessToken = tokenAuthenticator.getAccessToken()
-                        val refreshToken = tokenAuthenticator.getRefreshToken()
-
-                        if (refreshToken != null) {
-                            BearerTokens(accessToken, refreshToken)
-                        } else {
-                            null
-                        }
-                    }
+                    loadTokens { tokenAuthenticator.getCurrentTokens() }
 
                     refreshTokens { tokenAuthenticator.refresh() }
 
@@ -85,28 +77,19 @@ object InfraProvider {
         }
     }
 
-
-    fun getKtorFitInstance(tokenAuthenticator: TokenAuthenticator, deviceIdProvider: DeviceIdProvider): Ktorfit {
+    fun getKtorFitInstance(httpClient: HttpClient): Ktorfit {
         return Ktorfit
             .Builder()
             .baseUrl(PlatformConstants.getBaseUrl())
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), tokenAuthenticator, deviceIdProvider))
+            .httpClient(httpClient)
             .build()
     }
 
-    fun getKtorFitInstance(deviceIdProvider: DeviceIdProvider): Ktorfit {
-        return Ktorfit
-            .Builder()
-            .baseUrl(PlatformConstants.getBaseUrl())
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), deviceIdProvider))
-            .build()
-    }
-
-    fun getKtorFitInstanceForSerp(deviceIdProvider: DeviceIdProvider): Ktorfit {
+    fun getKtorFitInstanceForSerp(httpClient: HttpClient): Ktorfit {
         return Ktorfit
             .Builder()
             .baseUrl(SERP_BASE_API)
-            .httpClient(getHttpClient(PlatformInfraProvider.getHttpClientEngine(), deviceIdProvider))
+            .httpClient(httpClient)
             .build()
     }
 

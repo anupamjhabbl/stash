@@ -137,6 +137,11 @@ fun HomeStashScreen(
             ModalDrawerContent(
                 viewModel.getLoggedUser()
             ) {
+                scope.launch {
+                    if (drawerState.isOpen) {
+                        drawerState.close()
+                    }
+                }
                 viewModel.logOutUser()
             }
         }

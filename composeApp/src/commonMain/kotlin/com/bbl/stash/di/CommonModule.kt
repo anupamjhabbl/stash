@@ -15,6 +15,7 @@ import com.bbl.stash.auth.usecases.ProfileUseCase
 import com.bbl.stash.auth.usecases.UserAuthUseCase
 import com.bbl.stash.common.DeviceIdProvider
 import com.bbl.stash.common.infra.InfraProvider
+import com.bbl.stash.common.infra.PlatformInfraProvider
 import com.bbl.stash.common.infra.PreferenceManager
 import com.bbl.stash.common.infra.SecureStorage
 import com.bbl.stash.common.infra.TokenAuthenticator
@@ -33,6 +34,8 @@ import com.bbl.stash.domain.usecase.SerpImageUseCase
 import com.bbl.stash.domain.usecase.StashDataUseCase
 import com.bbl.stash.domain.usecase.StashSyncUseCase
 import com.bbl.stash.sync.StashSyncManager
+import io.ktor.client.HttpClient
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val commonModule = module {
@@ -49,9 +52,11 @@ val commonModule = module {
     }
 
     single<StashClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()), get<DeviceIdProvider>())
+        val ktorfit = InfraProvider.getKtorFitInstance(get<HttpClient>(named(InfraProvider.AUTH)))
         ktorfit.createStashClient()
     }
+
+    single<TokenAuthenticator> { TokenAuthenticator(get<AuthPreferencesUseCase>(), get<UserAuthUseCase>()) }
 
     single<AuthPreferencesUseCase> {
         AuthPreferencesUseCase(get<AuthPreferencesRepository>())
@@ -74,12 +79,12 @@ val commonModule = module {
     }
 
     single<UserAuthClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance(get<DeviceIdProvider>())
+        val ktorfit = InfraProvider.getKtorFitInstance(get<HttpClient>(named(InfraProvider.NO_AUTH)))
         ktorfit.createUserAuthClient()
     }
 
     single<UserClient> {
-        val ktorfit = InfraProvider.getKtorFitInstance(TokenAuthenticator(get(), get()), get<DeviceIdProvider>())
+        val ktorfit = InfraProvider.getKtorFitInstance(get<HttpClient>(named(InfraProvider.AUTH)))
         ktorfit.createUserClient()
     }
 
@@ -108,7 +113,15 @@ val commonModule = module {
     }
 
     single<SerpImageClient> {
-        val ktorfit = InfraProvider.getKtorFitInstanceForSerp(get<DeviceIdProvider>())
+        val ktorfit = InfraProvider.getKtorFitInstanceForSerp(get<HttpClient>(named(InfraProvider.NO_AUTH)))
         ktorfit.createSerpImageClient()
+    }
+
+    single<HttpClient>(named(InfraProvider.AUTH)) {
+        InfraProvider.getHttpClient(PlatformInfraProvider.getHttpClientEngine(), get<TokenAuthenticator>(), get<DeviceIdProvider>())
+    }
+
+    single<HttpClient>(named(InfraProvider.NO_AUTH)) {
+        InfraProvider.getHttpClient(PlatformInfraProvider.getHttpClientEngine(), get<DeviceIdProvider>())
     }
 }
