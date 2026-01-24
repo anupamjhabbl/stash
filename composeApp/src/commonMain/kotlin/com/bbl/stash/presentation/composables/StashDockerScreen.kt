@@ -169,8 +169,8 @@ fun StashDockerScreen(
         Box(modifier = Modifier.padding(paddingValues)) {
             if (isDialogVisible) {
                 ItemAdderDialog(
-                    onItemAdd = { itemId, itemName, ratingValue ->
-                        stashDockerViewModel.addStashItem(itemId, itemName, "", ratingValue, selectedItem?.stashItemCompleted ?: StashItemCategoryStatus.NOT_STARTED.status)
+                    onItemAdd = { itemId, itemName, ratingValue, itemUrl ->
+                        stashDockerViewModel.addStashItem(itemId, itemName, itemUrl, ratingValue, selectedItem?.stashItemCompleted ?: StashItemCategoryStatus.NOT_STARTED.status)
                         isDialogVisible = false
                         selectedItem = null
                     },
@@ -178,9 +178,7 @@ fun StashDockerScreen(
                         isDialogVisible = false
                         selectedItem = null
                     },
-                    itemName = selectedItem?.stashItemName ?: "",
-                    ratingValue = selectedItem?.stashItemRating ?: 0f,
-                    itemId = selectedItem?.stashItemId
+                    selectedItem = selectedItem
                 )
             }
 
@@ -420,14 +418,16 @@ fun DropDownView(
 
 @Composable
 fun ItemAdderDialog(
-    onItemAdd: (String?, String, Float) -> Unit,
+    onItemAdd: (String?, String, Float, String) -> Unit,
     onDismissRequest: () -> Unit,
-    itemName: String = "",
-    ratingValue: Float = 0f,
-    itemId: String? = null,
+    selectedItem: StashItem? = null
 ) {
-    var itemName by remember { mutableStateOf(itemName) }
-    var ratingValue by remember { mutableStateOf(ratingValue) }
+    val itemNameTemp = selectedItem?.stashItemName ?: ""
+    val ratingValueTemp = selectedItem?.stashItemRating ?: 0f
+    val itemUrl = selectedItem?.stashItemUrl ?: ""
+    val itemId = selectedItem?.stashItemId
+    var itemName by remember { mutableStateOf(itemNameTemp) }
+    var ratingValue by remember { mutableStateOf(ratingValueTemp) }
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
@@ -480,7 +480,7 @@ fun ItemAdderDialog(
 
                 Button(
                     onClick = {
-                        onItemAdd(itemId, itemName, ratingValue)
+                        onItemAdd(itemId, itemName, ratingValue, itemUrl)
                     },
                     modifier = Modifier.width(80.dp).height(40.dp),
                     shape = RoundedCornerShape(8.dp),
