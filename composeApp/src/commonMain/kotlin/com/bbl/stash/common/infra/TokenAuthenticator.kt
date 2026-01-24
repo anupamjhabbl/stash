@@ -22,7 +22,10 @@ class TokenAuthenticator(
     suspend fun refresh(): BearerTokens? {
         return mutex.withLock {
             val refreshToken = authPreferencesUseCase.getRefreshToken()
-                ?: return@withLock null
+            if (refreshToken == null) {
+                clearTokens()
+                return@withLock null
+            }
 
             try {
                 val accessToken = authPreferencesUseCase.getAccessToken()
@@ -46,6 +49,9 @@ class TokenAuthenticator(
                         refreshToken = refreshToken
                     )
                 } else {
+                    if (response.statusCode == 401 || response.statusCode == 403) {
+                        clearTokens()
+                    }
                     return@withLock null
                 }
             } catch (e: Exception) {
@@ -72,8 +78,7 @@ class TokenAuthenticator(
     }
 
     private fun clearTokens() {
-        authPreferencesUseCase.removeAccessToken()
-        authPreferencesUseCase.removeRefreshToken()
+        authPreferencesUseCase.removeUserData()
     }
 
     fun getCurrentTokens(): BearerTokens? {
