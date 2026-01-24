@@ -6,10 +6,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bbl.stash.common.ObserveAsEvents
+import com.bbl.stash.common.SessionManager
 import com.bbl.stash.common.controllers.SnackbarController
 import com.bbl.stash.presentation.navigation.screen.NavigationRoot
 import kotlinx.coroutines.launch
@@ -21,8 +23,9 @@ fun App(
     startSync: () -> Unit,
     stopSync: () -> Unit
 ) {
-    val authPreferencesUseCase: AuthPreferencesUseCase = koinInject()
-    val isUserLogged = authPreferencesUseCase.isUserLogged()
+    val sessionManager: SessionManager = koinInject()
+    val isUserLogged by sessionManager.isUserLogged.collectAsStateWithLifecycle()
+
     MaterialTheme {
         KoinContext {
             val snackbarHostState = remember { SnackbarHostState() }

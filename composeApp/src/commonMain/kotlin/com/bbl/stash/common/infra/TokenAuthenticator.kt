@@ -3,6 +3,7 @@ package com.bbl.stash.common.infra
 import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
 import com.bbl.stash.auth.usecases.UserAuthUseCase
 import com.bbl.stash.common.Constants
+import com.bbl.stash.common.SessionManager
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.util.decodeBase64Bytes
 import kotlinx.coroutines.sync.Mutex
@@ -16,7 +17,8 @@ import kotlin.time.ExperimentalTime
 
 class TokenAuthenticator(
     val authPreferencesUseCase: AuthPreferencesUseCase,
-    val userAuthUseCase: UserAuthUseCase
+    val userAuthUseCase: UserAuthUseCase,
+    val sessionManager: SessionManager
 ) {
     private val mutex = Mutex()
     suspend fun refresh(): BearerTokens? {
@@ -79,6 +81,7 @@ class TokenAuthenticator(
 
     private fun clearTokens() {
         authPreferencesUseCase.removeUserData()
+        sessionManager.updateUserLoggedStatus(false)
     }
 
     fun getCurrentTokens(): BearerTokens? {

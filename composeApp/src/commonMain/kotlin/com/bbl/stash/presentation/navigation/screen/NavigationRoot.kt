@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
@@ -61,6 +62,16 @@ fun NavigationRoot(
          initialScreen
     )
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
+
+    LaunchedEffect(isUserLogged) {
+        if (!isUserLogged) {
+            val current = navBackStack.lastOrNull()
+            if (current !is StashRoutes.AuthenticationFormScreen) {
+                navBackStack.clear()
+                navBackStack.add(StashRoutes.AuthenticationFormScreen)
+            }
+        }
+    }
 
     NavDisplay(
         backStack = navBackStack,

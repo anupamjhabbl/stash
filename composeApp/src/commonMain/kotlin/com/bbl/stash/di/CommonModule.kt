@@ -14,6 +14,7 @@ import com.bbl.stash.auth.usecases.AuthPreferencesUseCase
 import com.bbl.stash.auth.usecases.ProfileUseCase
 import com.bbl.stash.auth.usecases.UserAuthUseCase
 import com.bbl.stash.common.DeviceIdProvider
+import com.bbl.stash.common.SessionManager
 import com.bbl.stash.common.infra.InfraProvider
 import com.bbl.stash.common.infra.PlatformInfraProvider
 import com.bbl.stash.common.infra.PreferenceManager
@@ -56,7 +57,7 @@ val commonModule = module {
         ktorfit.createStashClient()
     }
 
-    single<TokenAuthenticator> { TokenAuthenticator(get<AuthPreferencesUseCase>(), get<UserAuthUseCase>()) }
+    single<TokenAuthenticator> { TokenAuthenticator(get<AuthPreferencesUseCase>(), get<UserAuthUseCase>(), get<SessionManager>()) }
 
     single<AuthPreferencesUseCase> {
         AuthPreferencesUseCase(get<AuthPreferencesRepository>())
@@ -123,5 +124,9 @@ val commonModule = module {
 
     single<HttpClient>(named(InfraProvider.NO_AUTH)) {
         InfraProvider.getHttpClient(PlatformInfraProvider.getHttpClientEngine(), get<DeviceIdProvider>())
+    }
+
+    single<SessionManager> {
+        SessionManager(get<AuthPreferencesUseCase>())
     }
 }
