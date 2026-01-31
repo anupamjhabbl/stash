@@ -80,7 +80,3 @@ To run the desktop application, execute the following Gradle task in the termina
 ## 🤝 Contributing
 
 Contributions are welcome! If you find a bug or have a feature request, please open an issue. If you want to contribute code, please feel free to submit a pull request.
-
-## 📄 License
-
-This project is licensed under the MIT License. You can create a `LICENSE` file and add the license text there.
